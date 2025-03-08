@@ -81,9 +81,11 @@
 
     <div class="main-wrapper">
       <main class="main-container">
-        <transition name="fade" mode="out-in">
-          <slot></slot>
-        </transition>
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </main>
     </div>
 
