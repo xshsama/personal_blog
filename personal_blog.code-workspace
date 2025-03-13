@@ -1,0 +1,44 @@
+{
+    "folders": [
+        {
+            "name": "Backend",
+            "path": "backend"
+        },
+        {
+            "name": "Frontend",
+            "path": "frontend"
+        }
+    ],
+    "settings": {
+        // 继承现有的 Java 配置
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.project.sourcePaths": ["backend/src/main/java"],
+        "java.project.outputPath": "backend/target/classes",
+        // 其他通用设置
+        "files.exclude": {
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/CVS": true,
+            "**/.DS_Store": true,
+            "**/Thumbs.db": true
+        },
+        "sqltools.connections": [
+            {
+                "mysqlOptions": {
+                    "authProtocol": "default",
+                    "enableSsl": "Disabled"
+                },
+                "previewLimit": 50,
+                "server": "localhost",
+                "port": 1100,
+                "driver": "MySQL",
+                "name": "1",
+                "username": "root",
+                "database": "personal_blog",
+                "password": "ying200568"
+            }
+        ]
+    }
+}
