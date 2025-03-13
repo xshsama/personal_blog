@@ -20,8 +20,8 @@ const routes = [
     path: '/categories',
     name: 'CategoryList',
     component: () => import('../views/Category/list.vue'),
- },
- {
+  },
+  {
     path: '/tags',
     name: 'TagList',
     component: () => import('../views/Tag/list.vue'),
@@ -46,18 +46,20 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: () => import('../views/Auth/login.vue'),
+    meta: { guest: true },
   },
   {
     path: '/register',
     name: 'Register',
     component: () => import('../views/Auth/register.vue'),
+    meta: { guest: true },
   },
-  // {
-  //   path: '/user',
-  //   name: 'UserCenter',
-  //   component: () => import('../views/User/index.vue'),
-  //   meta: { requiresAuth: true },
-  // },
+  {
+    path: '/user',
+    name: 'UserCenter',
+    component: () => import('../views/User/index.vue'),
+    meta: { requiresAuth: true },
+  },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
@@ -73,10 +75,13 @@ const router = createRouter({
 // Navigation guard for protected routes
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-  const isAuthenticated = localStorage.getItem('token') // Simple auth check
+  const guestOnly = to.matched.some((record) => record.meta.guest)
+  const isAuthenticated = localStorage.getItem('token')
 
   if (requiresAuth && !isAuthenticated) {
     next('/login')
+  } else if (guestOnly && isAuthenticated) {
+    next('/user')
   } else {
     next()
   }

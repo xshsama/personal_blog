@@ -17,14 +17,34 @@
           <div class="search-box">
             <input type="text" placeholder="搜索..." v-model="searchQuery" @keyup.enter="handleSearch" />
             <button @click="handleSearch">
-              <el-icon><Search /></el-icon>
+              <el-icon>
+                <Search />
+              </el-icon>
             </button>
           </div>
           <div class="user-actions">
             <template v-if="isLoggedIn">
-              <router-link to="/user" class="user-avatar">
-                <img :src="userAvatar" alt="User Avatar" />
-              </router-link>
+              <el-dropdown trigger="click">
+                <div class="user-avatar">
+                  <el-avatar :size="40" :src="userAvatar" />
+                </div>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item @click="goToUserCenter">
+                      <el-icon>
+                        <User />
+                      </el-icon>
+                      个人中心
+                    </el-dropdown-item>
+                    <el-dropdown-item @click="handleLogout">
+                      <el-icon>
+                        <SwitchButton />
+                      </el-icon>
+                      退出登录
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </template>
             <template v-else>
               <router-link to="/login" class="login-btn">登录</router-link>
@@ -60,9 +80,15 @@
           <div class="footer-right">
             <h4>联系我</h4>
             <div class="social-links">
-              <a href="#" target="_blank"><el-icon><Location /></el-icon></a>
-              <a href="#" target="_blank"><el-icon><Link /></el-icon></a>
-              <a href="#" target="_blank"><el-icon><ChatDotRound /></el-icon></a>
+              <a href="#" target="_blank"><el-icon>
+                  <Location />
+                </el-icon></a>
+              <a href="#" target="_blank"><el-icon>
+                  <Link />
+                </el-icon></a>
+              <a href="#" target="_blank"><el-icon>
+                  <ChatDotRound />
+                </el-icon></a>
             </div>
           </div>
         </div>
@@ -75,8 +101,10 @@
 </template>
 
 <script>
-import { Search, Location, Link, ChatDotRound } from '@element-plus/icons-vue';
-import { getImageUrl } from '../utils/image';
+import { ChatDotRound, Link, Location, Search, SwitchButton, User } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { getImageUrl } from '../utils/image'
 
 export default {
   name: 'MainLayout',
@@ -84,30 +112,36 @@ export default {
     Search,
     Location,
     Link,
-    ChatDotRound
+    ChatDotRound,
+    User,
+    SwitchButton
   },
-  data() {
+  setup() {
+    const router = useRouter()
     return {
       searchQuery: '',
-      isLoggedIn: false,
-      userAvatar: getImageUrl(30, 30, 13)
-    }
-  },
-  mounted() {
-    // Check if user is logged in
-    const token = localStorage.getItem('token')
-    if (token) {
-      this.isLoggedIn = true
-      // Fetch user info here if needed
-    }
-  },
-  methods: {
-    handleSearch() {
-      if (this.searchQuery.trim()) {
-        this.$router.push({
-          path: '/search',
-          query: { q: this.searchQuery }
-        })
+      isLoggedIn: localStorage.getItem('token') !== null,
+      userAvatar: getImageUrl(40, 40, 13),
+
+      handleSearch() {
+        if (this.searchQuery.trim()) {
+          router.push({
+            path: '/search',
+            query: { q: this.searchQuery }
+          })
+        }
+      },
+
+      goToUserCenter() {
+        router.push('/user')
+      },
+
+      handleLogout() {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        this.isLoggedIn = false
+        ElMessage.success('已退出登录')
+        router.push('/login')
       }
     }
   }
@@ -210,6 +244,15 @@ export default {
 .user-actions {
   display: flex;
   align-items: center;
+}
+
+.user-avatar {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
 }
 
 .user-avatar img {
@@ -348,5 +391,15 @@ export default {
   .footer-content {
     flex-direction: column;
   }
+}
+
+:deep(.el-dropdown-menu__item) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+:deep(.el-dropdown-menu__item i) {
+  margin-right: 5px;
 }
 </style>

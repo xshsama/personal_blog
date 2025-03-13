@@ -197,37 +197,45 @@ export default defineComponent({
         loading.value = true;
         loginStatus.value = 'loading';
         
-        // 模拟登录API调用
-        setTimeout(() => {
-          try {
-            // 模拟成功登录
-            localStorage.setItem('token', 'sample-token-123');
-            localStorage.setItem('user', JSON.stringify({
-              id: 1,
-              username: loginForm.username,
-              name: '张三',
-              avatar: '#'
-            }));
-            
+        // 真实API调用
+        try {
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(loginForm)
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('token', data.data.token);
+            localStorage.setItem('user', JSON.stringify(data.data.user));
+
             loginStatus.value = 'success';
             ElMessage.success({
               message: '登录成功!',
               duration: 2000
             });
-            
+
             // 延迟跳转,给用户一个视觉反馈的时间
             setTimeout(() => {
               router.push({ name: 'Home' });
             }, 500);
-          } catch (error) {
+          } else {
+            const errorData = await response.json();
             loginStatus.value = 'error';
-            errorMessage.value = '登录失败,请稍后再试';
-            ElMessage.error('登录失败,请稍后再试');
-          } finally {
-            loading.value = false;
+            errorMessage.value = errorData.message || '登录失败,请稍后再试';
+            ElMessage.error(errorMessage.value);
           }
-        }, 1500);
-        
+        } catch (error) {
+          console.error('登录请求失败:', error);
+          loginStatus.value = 'error';
+          errorMessage.value = '登录失败,请稍后再试';
+          ElMessage.error(errorMessage.value);
+        } finally {
+          loading.value = false;
+        }
       } catch (error) {
         console.error('验证失败:', error);
       }
