@@ -10,8 +10,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication
 public class MyApplication {
 
-    private String jwtSecret;
-
     public static void main(String[] args) {
         // 1. 生成随机密钥
         SecureRandom secureRandom = new SecureRandom();

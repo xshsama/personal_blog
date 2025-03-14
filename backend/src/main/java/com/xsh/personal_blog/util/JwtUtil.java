@@ -16,15 +16,26 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expire:86400000}")
-    private long expire;
+    @Value("${jwt.access-token.expire:3600000}") // 1小时
+    private long accessTokenExpire;
 
-    public String generateToken(UserDetails userDetails) {
+    @Value("${jwt.refresh-token.expire:604800000}") // 7天
+    private long refreshTokenExpire;
+
+    public String generateAccessToken(UserDetails userDetails) {
+        return generateToken(userDetails, accessTokenExpire);
+    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        return generateToken(userDetails, refreshTokenExpire);
+    }
+
+    private String generateToken(UserDetails userDetails, long expiration) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
-                .withClaim("username", userDetails.getUsername())
-                .withClaim("password", userDetails.getPassword())
-                .withExpiresAt(new Date(System.currentTimeMillis() + expire))
+                .withSubject(userDetails.getUsername())
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + expiration))
                 .sign(algorithm);
     }
 
@@ -34,9 +45,9 @@ public class JwtUtil {
             DecodedJWT decodedJWT = JWT.require(algorithm)
                     .build()
                     .verify(token);
-            return !decodedJWT.getExpiresAt().before(new Date()); // 检查是否过期
+            return !decodedJWT.getExpiresAt().before(new Date());
         } catch (JWTVerificationException exception) {
-            return false; // 验证失败
+            return false;
         }
     }
 

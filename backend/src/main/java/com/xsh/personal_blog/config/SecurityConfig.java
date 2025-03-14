@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -25,27 +24,25 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtAuthenticationFilter;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // 使用 BCrypt 算法加密密码
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    // 配置 AuthenticationManager
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http
                 .getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userService).passwordEncoder(passwordEncoder());
+        authenticationManagerBuilder.userDetailsService(userService).passwordEncoder(passwordEncoder);
         return authenticationManagerBuilder.build();
     }
 
-    // 配置安全过滤器链
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/h2-console/**").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh",
+                                "/api/auth/logout", "/h2-console/**")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
