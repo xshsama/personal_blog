@@ -1,17 +1,19 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router/index.js'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import axios from 'axios'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import { createApp } from 'vue'
 import { createStore } from 'vuex'
+import App from './App.vue'
+import router from './router/index.js'
+import authService from './services/auth.service'
 
-// 创建 store 实例
+// 创建 Vuex store
 const store = createStore({
   state() {
     return {
       user: JSON.parse(localStorage.getItem('user')) || null,
-      token: localStorage.getItem('token') || null
+      token: localStorage.getItem('token') || null,
     }
   },
   mutations: {
@@ -28,7 +30,8 @@ const store = createStore({
       state.token = null
       localStorage.removeItem('user')
       localStorage.removeItem('token')
-    }
+      authService.logout()
+    },
   },
   getters: {
     isAuthenticated(state) {
@@ -36,10 +39,29 @@ const store = createStore({
     },
     currentUser(state) {
       return state.user
-    }
-  }
+    },
+  },
 })
 
+// 配置全局 axios 默认值
+axios.defaults.baseURL = '/api'
+axios.defaults.headers.common['Content-Type'] = 'application/json'
+
+// 添加全局请求拦截器
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  },
+)
+
+// 创建 Vue 应用实例
 const app = createApp(App)
 
 // 注册所有图标
@@ -56,7 +78,7 @@ app.use(ElementPlus, { size: 'default' })
 app.config.globalProperties.$filters = {
   formatDate(date, format = 'YYYY-MM-DD') {
     return date ? new Date(date).toLocaleDateString() : '-'
-  }
+  },
 }
 
 app.mount('#app')

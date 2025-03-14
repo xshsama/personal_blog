@@ -4,22 +4,30 @@
     <div class="auth-decoration">
       <div class="decoration-content">
         <div class="logo">
-          <el-icon class="logo-icon"><Edit /></el-icon>
+          <el-icon class="logo-icon">
+            <Edit />
+          </el-icon>
           <span class="logo-text">个人博客</span>
         </div>
         <h2 class="decoration-title">分享知识,<br>连接世界!</h2>
         <p class="decoration-desc">随时随地记录和分享您的想法、经验和见解</p>
         <div class="decoration-features">
           <div class="feature-item">
-            <el-icon><Document /></el-icon>
+            <el-icon>
+              <Document />
+            </el-icon>
             <span>撰写技术文章</span>
           </div>
           <div class="feature-item">
-            <el-icon><Collection /></el-icon>
+            <el-icon>
+              <Collection />
+            </el-icon>
             <span>知识归档整理</span>
           </div>
           <div class="feature-item">
-            <el-icon><Share /></el-icon>
+            <el-icon>
+              <Share />
+            </el-icon>
             <span>社区互动交流</span>
           </div>
         </div>
@@ -28,66 +36,43 @@
         <p>© 2025 个人博客. 保留所有权利</p>
       </div>
     </div>
-    
+
     <!-- 右侧登录表单区域 -->
     <div class="auth-form">
       <div class="form-wrapper">
         <div class="form-header">
           <h1 class="form-title">
-            <el-icon><Key /></el-icon>
+            <el-icon>
+              <Key />
+            </el-icon>
             欢迎回来
           </h1>
           <p class="form-subtitle">请登录您的账户</p>
         </div>
-        
+
         <transition name="fade-slide" appear>
-          <el-form 
-            ref="formRef" 
-            :model="loginForm" 
-            :rules="rules" 
-            @submit.prevent="handleSubmit"
-            label-position="top"
-            class="login-form"
-          >
+          <el-form ref="formRef" :model="loginForm" :rules="rules" @submit.prevent="handleSubmit" label-position="top"
+            class="login-form">
             <el-form-item label="用户名/电子邮箱" prop="username">
-              <el-input 
-                v-model="loginForm.username" 
-                prefix-icon="User" 
-                placeholder="请输入用户名或电子邮箱"
-                :class="{ 'input-focus': activeField === 'username' }"
-                autofocus
-                @focus="activeField = 'username'"
-                @blur="activeField = ''"
-              ></el-input>
+              <el-input v-model="loginForm.username" prefix-icon="User" placeholder="请输入用户名或电子邮箱"
+                :class="{ 'input-focus': activeField === 'username' }" autofocus @focus="activeField = 'username'"
+                @blur="activeField = ''"></el-input>
             </el-form-item>
-            
+
             <el-form-item label="密码" prop="password">
-              <el-input 
-                v-model="loginForm.password" 
-                prefix-icon="Lock" 
-                type="password" 
-                placeholder="请输入密码"
-                show-password
-                :class="{ 'input-focus': activeField === 'password' }"
-                @focus="activeField = 'password'"
-                @blur="activeField = ''"
-                @keyup.enter="handleSubmit"
-              ></el-input>
+              <el-input v-model="loginForm.password" prefix-icon="Lock" type="password" placeholder="请输入密码"
+                show-password :class="{ 'input-focus': activeField === 'password' }" @focus="activeField = 'password'"
+                @blur="activeField = ''" @keyup.enter="handleSubmit"></el-input>
             </el-form-item>
-            
+
             <div class="form-options">
               <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
               <el-button link type="primary" @click="forgotPassword" class="forgot-btn">忘记密码?</el-button>
             </div>
-            
+
             <el-form-item>
-              <el-button 
-                type="primary" 
-                native-type="submit" 
-                :loading="loading" 
-                :disabled="loading"
-                class="login-button"
-              >
+              <el-button type="primary" native-type="submit" :loading="loading" :disabled="loading"
+                class="login-button">
                 <span v-if="!loading">登录</span>
                 <span v-else class="loading-text">
                   正在登录
@@ -97,34 +82,40 @@
             </el-form-item>
           </el-form>
         </transition>
-        
+
         <!-- 第三方登录 -->
         <div class="third-party-login">
           <p class="divider"><span>其他登录方式</span></p>
           <div class="third-party-buttons">
             <el-tooltip content="微信登录" placement="top" :show-after="300">
               <el-button type="success" circle class="social-button">
-                <el-icon><ChatDotRound /></el-icon>
+                <el-icon>
+                  <ChatDotRound />
+                </el-icon>
               </el-button>
             </el-tooltip>
             <el-tooltip content="QQ登录" placement="top" :show-after="300">
               <el-button type="primary" circle class="social-button">
-                <el-icon><MessageBox /></el-icon>
+                <el-icon>
+                  <MessageBox />
+                </el-icon>
               </el-button>
             </el-tooltip>
             <el-tooltip content="微博登录" placement="top" :show-after="300">
               <el-button type="danger" circle class="social-button">
-                <el-icon><Platform /></el-icon>
+                <el-icon>
+                  <Platform />
+                </el-icon>
               </el-button>
             </el-tooltip>
           </div>
         </div>
-        
+
         <div class="register-link">
           还没有账号? <el-button link type="primary" @click="navigateToRegister" class="register-btn">立即注册</el-button>
         </div>
       </div>
-      
+
       <div class="form-footer">
         <p>登录即表示您同意我们的 <el-link>服务条款</el-link> 和 <el-link>隐私政策</el-link></p>
       </div>
@@ -133,6 +124,7 @@
 </template>
 
 <script>
+import authService from '@/services/auth.service';
 import {
   ChatDotRound,
   Collection,
@@ -148,36 +140,38 @@ import {
 import { ElMessage } from 'element-plus';
 import { defineComponent, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'LoginView',
   components: {
-    User, 
-    Lock, 
-    Key, 
-    ChatDotRound, 
-    Platform, 
-    MessageBox, 
-    Edit, 
-    Document, 
-    Collection, 
+    User,
+    Lock,
+    Key,
+    ChatDotRound,
+    Platform,
+    MessageBox,
+    Edit,
+    Document,
+    Collection,
     Share
   },
   setup() {
     const router = useRouter();
+    const store = useStore();
     const formRef = ref(null);
     const activeField = ref('');
-    const loginStatus = ref('idle'); // idle, loading, success, error
+    const loginStatus = ref('idle');
     const errorMessage = ref('');
-    
+
     const loginForm = reactive({
       username: '',
       password: '',
       rememberMe: false
     });
-    
+
     const loading = ref(false);
-    
+
     const rules = {
       username: [
         { required: true, message: '请输入用户名或电子邮箱', trigger: 'blur' },
@@ -188,50 +182,35 @@ export default defineComponent({
         { min: 6, message: '密码长度不能少于6个字符', trigger: 'blur' }
       ]
     };
-    
+
     const handleSubmit = async () => {
       if (!formRef.value) return;
-      
+
       try {
         await formRef.value.validate();
         loading.value = true;
         loginStatus.value = 'loading';
-        
-        // 真实API调用
+
         try {
-          const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(loginForm)
+          const response = await authService.login(loginForm.username, loginForm.password);
+
+          // 更新 store 中的用户信息
+          store.commit('setUser', response.userInfo);
+
+          loginStatus.value = 'success';
+          ElMessage.success({
+            message: '登录成功!',
+            duration: 2000
           });
 
-          if (response.ok) {
-            const data = await response.json();
-            localStorage.setItem('token', data.data.token);
-            localStorage.setItem('user', JSON.stringify(data.data.user));
-
-            loginStatus.value = 'success';
-            ElMessage.success({
-              message: '登录成功!',
-              duration: 2000
-            });
-
-            // 延迟跳转,给用户一个视觉反馈的时间
-            setTimeout(() => {
-              router.push({ name: 'Home' });
-            }, 500);
-          } else {
-            const errorData = await response.json();
-            loginStatus.value = 'error';
-            errorMessage.value = errorData.message || '登录失败,请稍后再试';
-            ElMessage.error(errorMessage.value);
-          }
+          // 延迟跳转,给用户一个视觉反馈的时间
+          setTimeout(() => {
+            router.push({ name: 'Home' });
+          }, 500);
         } catch (error) {
           console.error('登录请求失败:', error);
           loginStatus.value = 'error';
-          errorMessage.value = '登录失败,请稍后再试';
+          errorMessage.value = error.response?.data?.message || '登录失败,请稍后再试';
           ElMessage.error(errorMessage.value);
         } finally {
           loading.value = false;
@@ -240,7 +219,7 @@ export default defineComponent({
         console.error('验证失败:', error);
       }
     };
-    
+
     const forgotPassword = () => {
       ElMessage({
         message: '忘记密码功能尚未实现,请联系管理员',
@@ -248,11 +227,11 @@ export default defineComponent({
         duration: 3000
       });
     };
-    
+
     const navigateToRegister = () => {
       router.push({ name: 'Register' });
     };
-    
+
     return {
       formRef,
       loginForm,
@@ -526,6 +505,7 @@ export default defineComponent({
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -536,6 +516,7 @@ export default defineComponent({
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -546,9 +527,11 @@ export default defineComponent({
   0% {
     opacity: 0;
   }
+
   50% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
   }
@@ -570,7 +553,7 @@ export default defineComponent({
   .auth-decoration {
     padding: 40px 30px;
   }
-  
+
   .decoration-title {
     font-size: 2.4rem;
   }
@@ -580,33 +563,33 @@ export default defineComponent({
   .auth-page {
     flex-direction: column;
   }
-  
+
   .auth-decoration {
     padding: 30px 20px;
     min-height: 250px;
   }
-  
+
   .decoration-title {
     font-size: 2rem;
   }
-  
+
   .decoration-desc {
     font-size: 1rem;
     margin-bottom: 20px;
   }
-  
+
   .logo {
     margin-bottom: 30px;
   }
-  
+
   .decoration-features {
     display: none;
   }
-  
+
   .decoration-footer {
     display: none;
   }
-  
+
   .auth-form {
     padding: 30px 20px;
   }
@@ -616,17 +599,17 @@ export default defineComponent({
   .login-card {
     max-width: 100%;
   }
-  
+
   .form-options {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .form-title {
     font-size: 1.8rem;
   }
-  
+
   .decoration-title {
     font-size: 1.8rem;
   }
