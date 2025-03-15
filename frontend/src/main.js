@@ -6,40 +6,12 @@ import { createApp } from 'vue'
 import { createStore } from 'vuex'
 import App from './App.vue'
 import router from './router/index.js'
-import authService from './services/auth.service'
+import auth from './store/modules/auth'
 
 // 创建 Vuex store
 const store = createStore({
-  state() {
-    return {
-      user: JSON.parse(localStorage.getItem('user')) || null,
-      token: localStorage.getItem('token') || null,
-    }
-  },
-  mutations: {
-    setUser(state, user) {
-      state.user = user
-      localStorage.setItem('user', JSON.stringify(user))
-    },
-    setToken(state, token) {
-      state.token = token
-      localStorage.setItem('token', token)
-    },
-    logout(state) {
-      state.user = null
-      state.token = null
-      localStorage.removeItem('user')
-      localStorage.removeItem('token')
-      authService.logout()
-    },
-  },
-  getters: {
-    isAuthenticated(state) {
-      return !!state.token
-    },
-    currentUser(state) {
-      return state.user
-    },
+  modules: {
+    auth,
   },
 })
 

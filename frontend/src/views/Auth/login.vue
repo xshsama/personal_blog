@@ -71,8 +71,8 @@
             </div>
 
             <el-form-item>
-              <el-button type="primary" native-type="submit" :loading="loading" :disabled="loading"
-                class="login-button">
+              <el-button type="primary" native-type="submit" class="login-button" :loading="loading"
+                :disabled="loading || !loginForm.username || !loginForm.password">
                 <span v-if="!loading">登录</span>
                 <span v-else class="loading-text">
                   正在登录
@@ -124,7 +124,6 @@
 </template>
 
 <script>
-import authService from '@/services/auth.service';
 import {
   ChatDotRound,
   Collection,
@@ -191,32 +190,36 @@ export default defineComponent({
         loading.value = true;
         loginStatus.value = 'loading';
 
-        try {
-          const response = await authService.login(loginForm.username, loginForm.password);
+        console.log('Attempting login with:', {
+          username: loginForm.username,
+          password: loginForm.password
+        });
 
-          // 更新 store 中的用户信息
-          store.commit('setUser', response.userInfo);
+        const response = await store.dispatch('auth/login', {
+          username: loginForm.username,
+          password: loginForm.password
+        });
 
-          loginStatus.value = 'success';
-          ElMessage.success({
-            message: '登录成功!',
-            duration: 2000
-          });
+        console.log('Login response:', response);
 
-          // 延迟跳转,给用户一个视觉反馈的时间
-          setTimeout(() => {
-            router.push({ name: 'Home' });
-          }, 500);
-        } catch (error) {
-          console.error('登录请求失败:', error);
-          loginStatus.value = 'error';
-          errorMessage.value = error.response?.data?.message || '登录失败,请稍后再试';
-          ElMessage.error(errorMessage.value);
-        } finally {
-          loading.value = false;
-        }
+        loginStatus.value = 'success';
+        ElMessage.success({
+          message: '登录成功!',
+          duration: 2000
+        });
+
+        // 延迟跳转,给用户一个视觉反馈的时间
+        setTimeout(() => {
+          router.push({ name: 'Home' });
+        }, 500);
+
       } catch (error) {
-        console.error('验证失败:', error);
+        console.error('登录失败:', error);
+        loginStatus.value = 'error';
+        errorMessage.value = error.response?.data?.message || '登录失败,请检查用户名和密码是否正确';
+        ElMessage.error(errorMessage.value);
+      } finally {
+        loading.value = false;
       }
     };
 

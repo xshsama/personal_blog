@@ -3,7 +3,8 @@ import axios from 'axios'
 class AuthService {
   constructor() {
     this.axios = axios.create({
-      baseURL: '/api/auth',
+      baseURL: 'http://localhost:9090/api/auth',
+      withCredentials: true,
     })
 
     // 添加响应拦截器处理token过期
@@ -27,7 +28,6 @@ class AuthService {
 
             return this.axios(originalRequest)
           } catch (err) {
-            // 刷新令牌失败，需要重新登录
             this.logout()
             return Promise.reject(err)
           }
@@ -38,39 +38,34 @@ class AuthService {
   }
 
   async login(username, password) {
-    const response = await this.axios.post('/login', { username, password })
-    const { accessToken, refreshToken } = response.data
+    try {
+      const response = await this.axios.post('/login', {
+        loginId: username,
+        password: password,
+      })
 
-    localStorage.setItem('token', accessToken)
-    localStorage.setItem('refreshToken', refreshToken)
-    this.axios.defaults.headers.common[
-      'Authorization'
-    ] = `Bearer ${accessToken}`
+      const { accessToken } = response.data
+      if (accessToken) {
+        localStorage.setItem('token', accessToken)
+        this.axios.defaults.headers.common[
+          'Authorization'
+        ] = `Bearer ${accessToken}`
+      }
 
-    return response.data
+      return response.data
+    } catch (error) {
+      console.error('Login API error:', error)
+      throw error
+    }
   }
 
   async refreshToken() {
-    const refreshToken = localStorage.getItem('refreshToken')
-    if (!refreshToken) {
-      throw new Error('No refresh token found')
-    }
-
-    return await this.axios.post('/refresh', null, {
-      headers: {
-        Cookie: `refreshToken=${refreshToken}`,
-      },
-    })
+    return await this.axios.post('/refresh')
   }
 
   logout() {
-    const refreshToken = localStorage.getItem('refreshToken')
-    if (refreshToken) {
-      this.axios.post('/logout')
-    }
-
+    this.axios.post('/logout')
     localStorage.removeItem('token')
-    localStorage.removeItem('refreshToken')
     delete this.axios.defaults.headers.common['Authorization']
   }
 }
