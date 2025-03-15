@@ -59,8 +59,9 @@
 <script>
 import { Edit, SwitchButton } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { defineComponent, reactive, ref } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import ArticleCard from '../../components/ArticleCard.vue'
 
 export default defineComponent({
@@ -72,16 +73,20 @@ export default defineComponent({
     },
     setup() {
         const router = useRouter()
+        const store = useStore()
         const activeTab = ref('articles')
 
-        // 模拟用户数据，实际应该从后端获取
-        const userInfo = reactive({
-            username: 'User',
-            bio: '热爱技术，热爱生活',
-            avatar: '#',
-            articleCount: 0,
-            likeCount: 0,
-            commentCount: 0
+        // 从 store 获取用户数据
+        const userInfo = computed(() => {
+            const user = store.getters['auth/currentUser']
+            return {
+                username: user?.username || 'User',
+                bio: user?.bio || '热爱技术，热爱生活',
+                avatar: user?.avatar || '#',
+                articleCount: user?.articleCount || 0,
+                likeCount: user?.likeCount || 0,
+                commentCount: user?.commentCount || 0
+            }
         })
 
         // 模拟文章数据，实际应该从后端获取
@@ -94,11 +99,15 @@ export default defineComponent({
         }
 
         // 处理退出登录
-        const handleLogout = () => {
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            ElMessage.success('已退出登录')
-            router.push('/login')
+        const handleLogout = async () => {
+            try {
+                await store.dispatch('auth/logout')
+                ElMessage.success('已退出登录')
+                router.push('/login')
+            } catch (error) {
+                console.error('退出登录失败:', error)
+                ElMessage.error('退出登录失败，请稍后重试')
+            }
         }
 
         return {

@@ -1,7 +1,9 @@
 package com.xsh.personal_blog.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,72 +20,70 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.xsh.personal_blog.service.UserService;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private UserService userService;
+        @Autowired
+        private UserService userService;
 
-    @Autowired
-    private JwtFilter jwtAuthenticationFilter;
+        @Autowired
+        private JwtFilter jwtAuthenticationFilter;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+        @Autowired
+        private PasswordEncoder passwordEncoder;
 
-    @Value("${app.cors.allowed-origins}")
-    private String allowedOrigins;
+        @Value("${app.cors.allowed-origins}")
+        private String allowedOrigins;
 
-    @Value("${app.cors.allowed-methods}")
-    private String allowedMethods;
+        @Value("${app.cors.allowed-methods}")
+        private String allowedMethods;
 
-    @Value("${app.cors.allowed-headers}")
-    private String allowedHeaders;
+        @Value("${app.cors.allowed-headers}")
+        private String allowedHeaders;
 
-    @Value("${app.cors.max-age}")
-    private long maxAge;
+        @Value("${app.cors.max-age}")
+        private long maxAge;
 
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = http
-                .getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userService).passwordEncoder(passwordEncoder);
-        return authenticationManagerBuilder.build();
-    }
+        @Bean
+        public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+                AuthenticationManagerBuilder authenticationManagerBuilder = http
+                                .getSharedObject(AuthenticationManagerBuilder.class);
+                authenticationManagerBuilder.userDetailsService(userService).passwordEncoder(passwordEncoder);
+                return authenticationManagerBuilder.build();
+        }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh",
-                                "/api/auth/logout", "/h2-console/**")
-                        .permitAll()
-                        .anyRequest().authenticated())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers(headers -> headers
-                        .frameOptions(frame -> frame.disable()));
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/api/auth/login", "/api/auth/register",
+                                                                "/api/auth/refresh",
+                                                                "/api/auth/logout", "/h2-console/**")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                                .headers(headers -> headers
+                                                .frameOptions(frame -> frame.disable()));
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
-        configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(maxAge);
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration();
+                configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+                configuration.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
+                configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));
+                configuration.setAllowCredentials(true);
+                configuration.setMaxAge(maxAge);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", configuration);
+                return source;
+        }
 }

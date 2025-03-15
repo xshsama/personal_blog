@@ -103,7 +103,9 @@
 <script>
 import { ChatDotRound, Link, Location, Search, SwitchButton, User } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import { getImageUrl } from '../utils/image'
 
 export default {
@@ -118,31 +120,45 @@ export default {
   },
   setup() {
     const router = useRouter()
-    return {
-      searchQuery: '',
-      isLoggedIn: localStorage.getItem('token') !== null,
-      userAvatar: getImageUrl(40, 40, 13),
+    const store = useStore()
+    const searchQuery = ref('')
 
-      handleSearch() {
-        if (this.searchQuery.trim()) {
-          router.push({
-            path: '/search',
-            query: { q: this.searchQuery }
-          })
-        }
-      },
+    // 使用 computed 属性从 store 获取登录状态
+    const isLoggedIn = computed(() => store.getters['auth/isAuthenticated'])
+    const currentUser = computed(() => store.getters['auth/currentUser'])
+    const userAvatar = computed(() => currentUser.value?.avatar || getImageUrl(40, 40, 13))
 
-      goToUserCenter() {
-        router.push('/user')
-      },
+    const handleSearch = () => {
+      if (searchQuery.value.trim()) {
+        router.push({
+          path: '/search',
+          query: { q: searchQuery.value }
+        })
+      }
+    }
 
-      handleLogout() {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        this.isLoggedIn = false
+    const goToUserCenter = () => {
+      router.push('/user')
+    }
+
+    const handleLogout = async () => {
+      try {
+        await store.dispatch('auth/logout')
         ElMessage.success('已退出登录')
         router.push('/login')
+      } catch (error) {
+        console.error('退出失败:', error)
+        ElMessage.error('退出失败，请稍后重试')
       }
+    }
+
+    return {
+      searchQuery,
+      isLoggedIn,
+      userAvatar,
+      handleSearch,
+      goToUserCenter,
+      handleLogout
     }
   }
 }
