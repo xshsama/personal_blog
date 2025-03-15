@@ -50,9 +50,22 @@ class AuthService {
         this.axios.defaults.headers.common[
           'Authorization'
         ] = `Bearer ${accessToken}`
+
+        // 创建一个基本的用户对象
+        const user = {
+          username: username,
+          // 可以添加其他默认用户信息
+          avatar: null,
+        }
+        localStorage.setItem('user', JSON.stringify(user))
+
+        return {
+          accessToken,
+          user,
+        }
       }
 
-      return response.data
+      throw new Error('Login failed: No access token received')
     } catch (error) {
       console.error('Login API error:', error)
       throw error
@@ -63,10 +76,15 @@ class AuthService {
     return await this.axios.post('/refresh')
   }
 
-  logout() {
-    this.axios.post('/logout')
-    localStorage.removeItem('token')
-    delete this.axios.defaults.headers.common['Authorization']
+  async logout() {
+    try {
+      await this.axios.post('/logout')
+    } finally {
+      // 确保即使请求失败也清理本地状态
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      delete this.axios.defaults.headers.common['Authorization']
+    }
   }
 }
 

@@ -1,20 +1,39 @@
-import authService from '@/services/auth.service'
+import authService from '../../services/auth.service'
 
-const state = {
-  user: JSON.parse(localStorage.getItem('user')) || null,
-  token: localStorage.getItem('token') || null,
+// 安全地解析 localStorage 中的用户数据
+const getUserFromStorage = () => {
+  try {
+    const userStr = localStorage.getItem('user')
+    return userStr ? JSON.parse(userStr) : null
+  } catch (e) {
+    console.error('Failed to parse user from localStorage:', e)
+    return null
+  }
 }
+
+const state = () => ({
+  user: getUserFromStorage(),
+  token: localStorage.getItem('token') || null,
+})
 
 const mutations = {
   setUser(state, user) {
     state.user = user
-    localStorage.setItem('user', JSON.stringify(user))
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user))
+    } else {
+      localStorage.removeItem('user')
+    }
   },
   setToken(state, token) {
     state.token = token
-    localStorage.setItem('token', token)
+    if (token) {
+      localStorage.setItem('token', token)
+    } else {
+      localStorage.removeItem('token')
+    }
   },
-  logout(state) {
+  clearUserState(state) {
     state.user = null
     state.token = null
     localStorage.removeItem('user')
@@ -26,19 +45,22 @@ const actions = {
   async login({ commit }, { username, password }) {
     try {
       const response = await authService.login(username, password)
-      commit('setToken', response.accessToken)
-      commit('setUser', response.user)
+      const { accessToken, user } = response
+
+      commit('setToken', accessToken)
+      commit('setUser', user)
       return response
     } catch (error) {
       console.error('Login error:', error)
       throw error
     }
   },
+
   async logout({ commit }) {
     try {
       await authService.logout()
     } finally {
-      commit('logout')
+      commit('clearUserState')
     }
   },
 }
