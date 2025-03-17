@@ -23,6 +23,12 @@
             </div>
 
             <div class="action-buttons">
+                <el-button type="primary" @click="createArticle">
+                    <el-icon>
+                        <EditPen />
+                    </el-icon>
+                    写文章
+                </el-button>
                 <el-button type="primary" @click="editProfile">
                     <el-icon>
                         <Edit />
@@ -43,7 +49,9 @@
                 <div class="articles-list" v-if="myArticles.length">
                     <article-card v-for="article in myArticles" :key="article.id" :article="article" />
                 </div>
-                <el-empty v-else description="暂无文章" />
+                <el-empty v-else description="暂无文章">
+                    <el-button type="primary" @click="createArticle">立即创作</el-button>
+                </el-empty>
             </el-tab-pane>
 
             <el-tab-pane label="收藏文章" name="favorites">
@@ -57,7 +65,7 @@
 </template>
 
 <script>
-import { Edit, SwitchButton } from '@element-plus/icons-vue'
+import { Edit, EditPen, SwitchButton } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { computed, defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -69,6 +77,7 @@ export default defineComponent({
     components: {
         ArticleCard,
         Edit,
+        EditPen,
         SwitchButton
     },
     setup() {
@@ -93,6 +102,11 @@ export default defineComponent({
         const myArticles = ref([])
         const favoriteArticles = ref([])
 
+        // 创建文章
+        const createArticle = () => {
+            router.push({ name: 'ArticleCreate' })
+        }
+
         // 编辑个人资料
         const editProfile = () => {
             ElMessage.info('编辑个人资料功能开发中')
@@ -115,6 +129,7 @@ export default defineComponent({
             userInfo,
             myArticles,
             favoriteArticles,
+            createArticle,
             editProfile,
             handleLogout
         }
