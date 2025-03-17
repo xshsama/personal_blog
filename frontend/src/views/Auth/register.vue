@@ -4,22 +4,30 @@
     <div class="auth-decoration">
       <div class="decoration-content">
         <div class="logo">
-          <el-icon class="logo-icon"><Edit /></el-icon>
+          <el-icon class="logo-icon">
+            <Edit />
+          </el-icon>
           <span class="logo-text">个人博客</span>
         </div>
         <h2 class="decoration-title">加入我们,<br>分享您的见解!</h2>
         <p class="decoration-desc">创建账号,开启您的写作之旅</p>
         <div class="decoration-features">
           <div class="feature-item">
-            <el-icon><Edit /></el-icon>
+            <el-icon>
+              <Edit />
+            </el-icon>
             <span>发表您的文章</span>
           </div>
           <div class="feature-item">
-            <el-icon><ChatDotRound /></el-icon>
+            <el-icon>
+              <ChatDotRound />
+            </el-icon>
             <span>参与热门讨论</span>
           </div>
           <div class="feature-item">
-            <el-icon><Star /></el-icon>
+            <el-icon>
+              <Star />
+            </el-icon>
             <span>收藏喜爱内容</span>
           </div>
         </div>
@@ -28,82 +36,54 @@
         <p>© 2025 个人博客. 保留所有权利</p>
       </div>
     </div>
-    
+
     <!-- 右侧注册表单区域 -->
     <div class="auth-form">
       <div class="form-wrapper">
         <div class="form-header">
           <h1 class="form-title">
-            <el-icon><User /></el-icon>
+            <el-icon>
+              <User />
+            </el-icon>
             创建账户
           </h1>
           <p class="form-subtitle">填写以下信息完成注册</p>
         </div>
-        
+
         <transition name="fade-slide" appear>
-          <el-form 
-            ref="formRef" 
-            :model="registerForm" 
-            :rules="rules" 
-            @submit.prevent="handleSubmit"
-            label-position="top"
-            class="register-form"
-            status-icon
-          >
+          <el-form ref="formRef" :model="registerForm" :rules="rules" @submit.prevent="handleSubmit"
+            label-position="top" class="register-form" status-icon>
             <el-form-item label="用户名" prop="username">
-              <el-input 
-                v-model="registerForm.username" 
-                prefix-icon="User" 
-                placeholder="请输入用户名"
-                :class="{ 'input-focus': activeField === 'username' }"
-                autofocus
-                @focus="activeField = 'username'"
-                @blur="activeField = ''"
-              ></el-input>
+              <el-input v-model="registerForm.username" prefix-icon="User" placeholder="请输入用户名"
+                :class="{ 'input-focus': activeField === 'username' }" autofocus @focus="activeField = 'username'"
+                @blur="activeField = ''"></el-input>
             </el-form-item>
-            
+
             <el-form-item label="电子邮箱" prop="email">
-              <el-input 
-                v-model="registerForm.email" 
-                prefix-icon="Message" 
-                placeholder="请输入电子邮箱"
-                :class="{ 'input-focus': activeField === 'email' }"
-                @focus="activeField = 'email'"
-                @blur="activeField = ''"
-              ></el-input>
+              <el-input v-model="registerForm.email" prefix-icon="Message" placeholder="请输入电子邮箱"
+                :class="{ 'input-focus': activeField === 'email' }" @focus="activeField = 'email'"
+                @blur="activeField = ''"></el-input>
             </el-form-item>
-            
+
             <el-form-item label="密码" prop="password">
-              <el-input 
-                v-model="registerForm.password" 
-                prefix-icon="Lock" 
-                type="password" 
-                placeholder="请输入密码"
-                show-password
-                :class="{ 'input-focus': activeField === 'password' }"
-                @focus="activeField = 'password'"
-                @blur="activeField = ''"
-              >
+              <el-input v-model="registerForm.password" prefix-icon="Lock" type="password" placeholder="请输入密码"
+                show-password :class="{ 'input-focus': activeField === 'password' }" @focus="activeField = 'password'"
+                @blur="activeField = ''">
                 <template #append>
                   <el-tooltip content="密码至少需要6个字符" placement="top">
-                    <el-icon><InfoFilled /></el-icon>
+                    <el-icon>
+                      <InfoFilled />
+                    </el-icon>
                   </el-tooltip>
                 </template>
               </el-input>
             </el-form-item>
-            
+
             <el-form-item label="确认密码" prop="confirmPassword">
-              <el-input 
-                v-model="registerForm.confirmPassword" 
-                prefix-icon="Lock" 
-                type="password" 
-                placeholder="请再次输入密码"
-                show-password
-                :class="{ 'input-focus': activeField === 'confirmPassword' }"
-                @focus="activeField = 'confirmPassword'"
-                @blur="activeField = ''"
-                @keyup.enter="handleSubmit"
-              ></el-input>
+              <el-input v-model="registerForm.confirmPassword" prefix-icon="Lock" type="password" placeholder="请再次输入密码"
+                show-password :class="{ 'input-focus': activeField === 'confirmPassword' }"
+                @focus="activeField = 'confirmPassword'" @blur="activeField = ''"
+                @keyup.enter="handleSubmit"></el-input>
             </el-form-item>
 
             <el-form-item class="agree-terms">
@@ -111,15 +91,10 @@
                 我已阅读并同意 <el-link type="primary">用户协议</el-link> 和 <el-link type="primary">隐私政策</el-link>
               </el-checkbox>
             </el-form-item>
-            
+
             <el-form-item>
-              <el-button 
-                type="primary" 
-                native-type="submit" 
-                :loading="loading" 
-                :disabled="loading || !registerForm.agreeTerms"
-                class="register-button"
-              >
+              <el-button type="primary" native-type="submit" :loading="loading"
+                :disabled="loading || !registerForm.agreeTerms" class="register-button">
                 <span v-if="!loading">创建账户</span>
                 <span v-else class="loading-text">
                   正在注册
@@ -135,7 +110,7 @@
           已有账号? <el-button link type="primary" @click="navigateToLogin" class="login-btn">立即登录</el-button>
         </div>
       </div>
-      
+
       <div class="form-footer">
         <p>注册即表示您同意我们的 <el-link>服务条款</el-link> 和 <el-link>隐私政策</el-link></p>
       </div>
@@ -156,6 +131,7 @@ import {
 import { ElMessage } from 'element-plus';
 import { defineComponent, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'RegisterView',
@@ -170,11 +146,12 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const store = useStore();
     const formRef = ref(null);
     const activeField = ref('');
     const registerStatus = ref('idle'); // idle, loading, success, error
     const errorMessage = ref('');
-    
+
     const registerForm = reactive({
       username: '',
       email: '',
@@ -182,9 +159,9 @@ export default defineComponent({
       confirmPassword: '',
       agreeTerms: false
     });
-    
+
     const loading = ref(false);
-    
+
     const rules = {
       username: [
         { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -202,15 +179,15 @@ export default defineComponent({
       ],
       confirmPassword: [
         { required: true, message: '请确认密码', trigger: 'blur' },
-        { 
+        {
           validator: (rule, value, callback) => {
             if (value !== registerForm.password) {
               callback(new Error('两次输入的密码不一致!'));
             } else {
               callback();
             }
-          }, 
-          trigger: 'blur' 
+          },
+          trigger: 'blur'
         }
       ],
       agreeTerms: [
@@ -226,57 +203,56 @@ export default defineComponent({
         }
       ]
     };
-    
+
     const handleSubmit = async () => {
       if (!formRef.value) return;
-      
+
       if (!registerForm.agreeTerms) {
         ElMessage.warning('请阅读并同意用户协议和隐私政策');
         return;
       }
-      
+
       try {
         await formRef.value.validate();
         loading.value = true;
         registerStatus.value = 'loading';
-        
-        // 模拟注册API调用
+
+        await store.dispatch('auth/register', {
+          username: registerForm.username,
+          email: registerForm.email,
+          password: registerForm.password
+        });
+
+        registerStatus.value = 'success';
+        ElMessage.success({
+          message: '注册成功! 欢迎加入我们',
+          duration: 2000
+        });
+
+        // 延迟跳转,给用户一个视觉反馈的时间
         setTimeout(() => {
-          try {
-            registerStatus.value = 'success';
-            ElMessage.success({
-              message: '注册成功! 欢迎加入我们',
-              duration: 2000
-            });
-            
-            // 延迟跳转,给用户一个视觉反馈的时间
-            setTimeout(() => {
-              router.push({ 
-                name: 'Login',
-                query: { 
-                  registered: 'true',
-                  username: registerForm.username
-                } 
-              });
-            }, 500);
-          } catch (error) {
-            registerStatus.value = 'error';
-            errorMessage.value = '注册失败,请稍后再试';
-            ElMessage.error('注册失败,请稍后再试');
-          } finally {
-            loading.value = false;
-          }
-        }, 1500);
-        
+          router.push({
+            name: 'Login',
+            query: {
+              registered: 'true',
+              username: registerForm.username
+            }
+          });
+        }, 500);
       } catch (error) {
-        console.error('验证失败:', error);
+        console.error('注册失败:', error);
+        registerStatus.value = 'error';
+        errorMessage.value = error.response?.data?.message || '注册失败，请稍后再试';
+        ElMessage.error(errorMessage.value);
+      } finally {
+        loading.value = false;
       }
     };
-    
+
     const navigateToLogin = () => {
       router.push({ name: 'Login' });
     };
-    
+
     return {
       formRef,
       registerForm,
@@ -497,6 +473,7 @@ export default defineComponent({
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -507,6 +484,7 @@ export default defineComponent({
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -517,9 +495,11 @@ export default defineComponent({
   0% {
     opacity: 0;
   }
+
   50% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
   }
@@ -541,7 +521,7 @@ export default defineComponent({
   .auth-decoration {
     padding: 40px 30px;
   }
-  
+
   .decoration-title {
     font-size: 2.4rem;
   }
@@ -551,33 +531,33 @@ export default defineComponent({
   .auth-page {
     flex-direction: column;
   }
-  
+
   .auth-decoration {
     padding: 30px 20px;
     min-height: 250px;
   }
-  
+
   .decoration-title {
     font-size: 2rem;
   }
-  
+
   .decoration-desc {
     font-size: 1rem;
     margin-bottom: 20px;
   }
-  
+
   .logo {
     margin-bottom: 30px;
   }
-  
+
   .decoration-features {
     display: none;
   }
-  
+
   .decoration-footer {
     display: none;
   }
-  
+
   .auth-form {
     padding: 30px 20px;
   }
@@ -587,7 +567,7 @@ export default defineComponent({
   .form-title {
     font-size: 1.8rem;
   }
-  
+
   .decoration-title {
     font-size: 1.8rem;
   }

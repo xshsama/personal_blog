@@ -42,6 +42,20 @@ const mutations = {
 }
 
 const actions = {
+  async register({ commit }, { username, email, password }) {
+    try {
+      const response = await authService.register(username, email, password)
+      const { accessToken, user } = response
+
+      commit('setToken', accessToken)
+      commit('setUser', user)
+      return response
+    } catch (error) {
+      console.error('Registration error:', error)
+      throw error
+    }
+  },
+
   async login({ commit }, { username, password }) {
     try {
       const response = await authService.login(username, password)

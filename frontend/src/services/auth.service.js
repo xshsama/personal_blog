@@ -37,6 +37,40 @@ class AuthService {
     )
   }
 
+  async register(username, email, password) {
+    try {
+      const response = await this.axios.post('/register', {
+        username,
+        email,
+        password,
+      })
+
+      const { accessToken } = response.data
+      if (accessToken) {
+        localStorage.setItem('token', accessToken)
+        this.axios.defaults.headers.common[
+          'Authorization'
+        ] = `Bearer ${accessToken}`
+
+        const user = {
+          username,
+          email,
+          avatar: null,
+        }
+        localStorage.setItem('user', JSON.stringify(user))
+
+        return {
+          accessToken,
+          user,
+        }
+      }
+      throw new Error('Registration failed: No access token received')
+    } catch (error) {
+      console.error('Registration API error:', error)
+      throw error
+    }
+  }
+
   async login(username, password) {
     try {
       const response = await this.axios.post('/login', {
