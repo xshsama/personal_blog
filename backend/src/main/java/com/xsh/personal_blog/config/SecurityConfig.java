@@ -61,7 +61,8 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/login", "/api/auth/register",
                                                                 "/api/auth/refresh",
-                                                                "/api/auth/logout", "/h2-console/**")
+                                                                "/api/auth/logout", "/h2-console/**",
+                                                                "/api/git/commits")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session
