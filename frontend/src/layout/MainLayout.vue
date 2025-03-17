@@ -23,6 +23,12 @@
             </button>
           </div>
           <div class="user-actions">
+            <el-button type="primary" class="write-button" @click="handleWriteClick">
+              <el-icon>
+                <EditPen />
+              </el-icon>
+              写文章
+            </el-button>
             <template v-if="isLoggedIn">
               <el-dropdown trigger="click">
                 <div class="user-avatar">
@@ -101,7 +107,7 @@
 </template>
 
 <script>
-import { ChatDotRound, Link, Location, Search, SwitchButton, User } from '@element-plus/icons-vue'
+import { ChatDotRound, EditPen, Link, Location, Search, SwitchButton, User } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -116,7 +122,8 @@ export default {
     Link,
     ChatDotRound,
     User,
-    SwitchButton
+    SwitchButton,
+    EditPen
   },
   setup() {
     const router = useRouter()
@@ -135,6 +142,18 @@ export default {
           query: { q: searchQuery.value }
         })
       }
+    }
+
+    const handleWriteClick = () => {
+      if (!isLoggedIn.value) {
+        ElMessage({
+          message: '请先登录后再写文章',
+          type: 'warning',
+          duration: 2000
+        })
+        return
+      }
+      router.push({ name: 'ArticleCreate' })
     }
 
     const goToUserCenter = () => {
@@ -157,6 +176,7 @@ export default {
       isLoggedIn,
       userAvatar,
       handleSearch,
+      handleWriteClick,
       goToUserCenter,
       handleLogout
     }
@@ -294,6 +314,10 @@ export default {
 .register-btn {
   background-color: #409EFF;
   color: white;
+}
+
+.write-button {
+  margin-right: 15px;
 }
 
 /* Main Content Styles */

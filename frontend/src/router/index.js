@@ -12,6 +12,12 @@ const routes = [
     component: () => import('../views/Article/list.vue'),
   },
   {
+    path: '/article/create',
+    name: 'ArticleCreate',
+    component: () => import('../views/Article/create.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/article/:id',
     name: 'ArticleDetail',
     component: () => import('../views/Article/detail.vue'),
