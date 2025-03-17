@@ -7,42 +7,28 @@
           <h1 class="about-title">关于我</h1>
         </div>
       </template>
-      
+
       <div class="about-content">
         <div class="section bio-section">
           <h2>个人简介</h2>
           <p>{{ profile.bio }}</p>
         </div>
-        
+
         <div class="section skills-section">
           <h2>技术栈</h2>
           <div class="skills-container">
-            <el-tag 
-              v-for="skill in profile.skills" 
-              :key="skill.name"
-              :type="getTagType(skill.level)"
-              class="skill-tag"
-            >
+            <el-tag v-for="skill in profile.skills" :key="skill.name" :type="getTagType(skill.level)" class="skill-tag">
               {{ skill.name }}
-              <el-progress 
-                :percentage="skill.level * 20" 
-                :stroke-width="5"
-                :show-text="false"
-                class="skill-progress"
-              />
+              <el-progress :percentage="skill.level * 20" :stroke-width="5" :show-text="false" class="skill-progress" />
             </el-tag>
           </div>
         </div>
-        
+
         <div class="section experience-section">
           <h2>工作经历</h2>
           <el-timeline>
-            <el-timeline-item 
-              v-for="(exp, index) in profile.experiences" 
-              :key="index"
-              :timestamp="exp.period" 
-              placement="top"
-            >
+            <el-timeline-item v-for="(exp, index) in profile.experiences" :key="index" :timestamp="exp.period"
+              placement="top">
               <el-card class="experience-card">
                 <h3>{{ exp.company }} - {{ exp.title }}</h3>
                 <p>{{ exp.description }}</p>
@@ -50,7 +36,7 @@
             </el-timeline-item>
           </el-timeline>
         </div>
-        
+
         <div class="section projects-section">
           <h2>项目经历</h2>
           <el-carousel :interval="5000" type="card" height="280px">
@@ -58,12 +44,8 @@
               <el-card class="project-card">
                 <h3>{{ project.name }}</h3>
                 <div class="project-tags">
-                  <el-tag 
-                    v-for="tag in project.technologies" 
-                    :key="tag" 
-                    size="small" 
-                    class="project-tag"
-                  >{{ tag }}</el-tag>
+                  <el-tag v-for="tag in project.technologies" :key="tag" size="small" class="project-tag">{{ tag
+                    }}</el-tag>
                 </div>
                 <p>{{ project.description }}</p>
                 <div class="project-links">
@@ -78,7 +60,58 @@
             </el-carousel-item>
           </el-carousel>
         </div>
-        
+
+        <div class="section progress-section">
+          <h2>建设进度</h2>
+          <div class="progress-overview">
+            <el-card class="progress-card">
+              <template #header>
+                <div class="progress-header">
+                  <span>总体完成进度</span>
+                  <el-progress type="dashboard" :percentage="68" :color="progressColors"></el-progress>
+                </div>
+              </template>
+              <p class="progress-description">
+                目前已完成基础功能开发，正在进行功能优化和新特性开发。
+              </p>
+            </el-card>
+          </div>
+
+          <div class="modules-progress">
+            <el-timeline>
+              <el-timeline-item v-for="(module, index) in profile.modules" :key="index"
+                :type="module.status === 'completed' ? 'success' : module.status === 'in-progress' ? 'primary' : 'info'"
+                :hollow="module.status === 'planned'" :timestamp="module.timestamp">
+                <el-card class="module-card">
+                  <h4>{{ module.name }}</h4>
+                  <p>{{ module.description }}</p>
+                  <div class="module-progress">
+                    <el-progress :percentage="module.progress"
+                      :status="module.status === 'completed' ? 'success' : undefined"></el-progress>
+                  </div>
+                  <div class="module-features">
+                    <el-tag v-for="(feature, fidx) in module.features" :key="fidx" :type="feature.done ? 'success' : ''"
+                      :effect="feature.done ? 'light' : 'plain'" size="small" class="feature-tag">
+                      {{ feature.name }}
+                    </el-tag>
+                  </div>
+                </el-card>
+              </el-timeline-item>
+            </el-timeline>
+          </div>
+
+          <div class="changelog">
+            <h3>更新日志</h3>
+            <el-timeline>
+              <el-timeline-item v-for="(log, index) in profile.changelog" :key="index" :timestamp="log.date"
+                placement="top" :type="log.type">
+                <h4>{{ log.title }}</h4>
+                <p>{{ log.content }}</p>
+              </el-timeline-item>
+            </el-timeline>
+          </div>
+        </div>
+
         <div class="section contact-section">
           <h2>联系方式</h2>
           <div class="contact-items">
@@ -111,14 +144,22 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
   name: 'AboutView',
   setup() {
+    const progressColors = [
+      { color: '#f56c6c', percentage: 20 },
+      { color: '#e6a23c', percentage: 40 },
+      { color: '#5cb87a', percentage: 60 },
+      { color: '#1989fa', percentage: 80 },
+      { color: '#6f7ad3', percentage: 100 }
+    ];
+
     // 模拟个人资料数据
     const profile = ref({
       name: '张三',
       avatar: '#',
       bio: '我是一名热爱技术的前端开发工程师,专注于Vue.js和React生态系统。' +
-           '我喜欢创建用户友好、高性能的web应用程序,并且持续学习最新的前端技术。' +
-           '在空闲时间,我喜欢写技术博客分享我的学习心得,同时也是开源社区的积极贡献者。',
-      
+        '我喜欢创建用户友好、高性能的web应用程序,并且持续学习最新的前端技术。' +
+        '在空闲时间,我喜欢写技术博客分享我的学习心得,同时也是开源社区的积极贡献者。',
+
       skills: [
         { name: 'Vue.js', level: 5 },
         { name: 'React', level: 4 },
@@ -129,7 +170,7 @@ export default defineComponent({
         { name: 'Python', level: 3 },
         { name: 'Java', level: 2 }
       ],
-      
+
       experiences: [
         {
           company: 'ABC科技有限公司',
@@ -150,7 +191,7 @@ export default defineComponent({
           description: '参与小型团队开发SaaS应用,负责功能开发和bug修复,学习使用前端框架和工具链。'
         }
       ],
-      
+
       projects: [
         {
           name: '个人博客系统',
@@ -174,13 +215,75 @@ export default defineComponent({
           demo: 'https://movie-info.zhangsan.com'
         }
       ],
-      
+
+      modules: [
+        {
+          name: '用户系统',
+          description: '包含用户注册、登录、密码重置等基础功能',
+          timestamp: '2024-03',
+          status: 'completed',
+          progress: 100,
+          features: [
+            { name: '用户注册', done: true },
+            { name: '用户登录', done: true },
+            { name: '密码重置', done: false }
+          ]
+        },
+        {
+          name: '文章系统',
+          description: '文章的创建、编辑、发布、删除等核心功能',
+          timestamp: '2024-03',
+          status: 'in-progress',
+          progress: 70,
+          features: [
+            { name: '文章创建', done: true },
+            { name: '文章编辑', done: true },
+            { name: 'Markdown支持', done: true },
+            { name: '文章删除', done: false },
+            { name: '草稿功能', done: false }
+          ]
+        },
+        {
+          name: '评论系统',
+          description: '文章评论、回复功能',
+          timestamp: '2024-04',
+          status: 'planned',
+          progress: 0,
+          features: [
+            { name: '评论发布', done: false },
+            { name: '评论回复', done: false },
+            { name: '评论管理', done: false }
+          ]
+        }
+      ],
+
+      changelog: [
+        {
+          date: '2024-03-15',
+          title: 'v0.2.0 发布',
+          content: '完成文章创建和编辑功能，支持Markdown编辑器',
+          type: 'success'
+        },
+        {
+          date: '2024-03-10',
+          title: 'v0.1.1 更新',
+          content: '修复用户登录状态保存问题，优化页面响应式布局',
+          type: 'warning'
+        },
+        {
+          date: '2024-03-01',
+          title: 'v0.1.0 发布',
+          content: '完成用户注册和登录功能，搭建基础项目框架',
+          type: 'primary'
+        }
+      ],
+
       email: 'zhangsan@example.com',
       github: 'https://github.com/zhangsan',
       linkedin: 'https://linkedin.com/in/zhangsan',
       twitter: 'https://twitter.com/zhangsan'
     });
-    
+
     // 根据技能级别获取标签类型
     const getTagType = (level) => {
       if (level >= 5) return 'success';
@@ -189,10 +292,11 @@ export default defineComponent({
       if (level >= 2) return 'info';
       return 'danger';
     };
-    
+
     return {
       profile,
-      getTagType
+      getTagType,
+      progressColors
     };
   }
 });
@@ -316,13 +420,74 @@ export default defineComponent({
   .about-view {
     padding: 10px;
   }
-  
+
   .skills-container {
     justify-content: center;
   }
-  
+
   .contact-items {
     flex-direction: column;
+  }
+}
+
+.progress-section {
+  margin-top: 40px;
+}
+
+.progress-overview {
+  margin-bottom: 30px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-description {
+  color: #606266;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.modules-progress {
+  margin-bottom: 30px;
+}
+
+.module-card {
+  margin-bottom: 10px;
+}
+
+.module-card h4 {
+  margin: 0;
+  margin-bottom: 10px;
+  color: #303133;
+}
+
+.module-progress {
+  margin: 15px 0;
+}
+
+.module-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.feature-tag {
+  border-radius: 4px;
+}
+
+.changelog h3 {
+  margin-bottom: 20px;
+  color: #303133;
+}
+
+@media (max-width: 768px) {
+  .progress-header {
+    flex-direction: column;
+    gap: 15px;
   }
 }
 </style>
