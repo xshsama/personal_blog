@@ -45,7 +45,7 @@
                 <h3>{{ project.name }}</h3>
                 <div class="project-tags">
                   <el-tag v-for="tag in project.technologies" :key="tag" size="small" class="project-tag">{{ tag
-                    }}</el-tag>
+                  }}</el-tag>
                 </div>
                 <p>{{ project.description }}</p>
                 <div class="project-links">
@@ -68,7 +68,8 @@
               <template #header>
                 <div class="progress-header">
                   <span>总体完成进度</span>
-                  <el-progress type="dashboard" :percentage="68" :color="progressColors"></el-progress>
+                  <el-progress type="dashboard" :percentage="profile.totalProgress"
+                    :color="progressColors"></el-progress>
                 </div>
               </template>
               <p class="progress-description">
@@ -96,17 +97,6 @@
                     </el-tag>
                   </div>
                 </el-card>
-              </el-timeline-item>
-            </el-timeline>
-          </div>
-
-          <div class="changelog">
-            <h3>更新日志</h3>
-            <el-timeline>
-              <el-timeline-item v-for="(log, index) in profile.changelog" :key="index" :timestamp="log.date"
-                placement="top" :type="log.type">
-                <h4>{{ log.title }}</h4>
-                <p>{{ log.content }}</p>
               </el-timeline-item>
             </el-timeline>
           </div>
@@ -139,11 +129,14 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
+import { getGitCommits } from '../../api/git';
 
 export default defineComponent({
   name: 'AboutView',
   setup() {
+    const loading = ref(false);
+    const commits = ref([]);
     const progressColors = [
       { color: '#f56c6c', percentage: 20 },
       { color: '#e6a23c', percentage: 40 },
@@ -152,7 +145,6 @@ export default defineComponent({
       { color: '#6f7ad3', percentage: 100 }
     ];
 
-    // 模拟个人资料数据
     const profile = ref({
       name: '张三',
       avatar: '#',
@@ -216,72 +208,60 @@ export default defineComponent({
         }
       ],
 
-      modules: [
-        {
-          name: '用户系统',
-          description: '包含用户注册、登录、密码重置等基础功能',
-          timestamp: '2024-03',
-          status: 'completed',
-          progress: 100,
-          features: [
-            { name: '用户注册', done: true },
-            { name: '用户登录', done: true },
-            { name: '密码重置', done: false }
-          ]
-        },
-        {
-          name: '文章系统',
-          description: '文章的创建、编辑、发布、删除等核心功能',
-          timestamp: '2024-03',
-          status: 'in-progress',
-          progress: 70,
-          features: [
-            { name: '文章创建', done: true },
-            { name: '文章编辑', done: true },
-            { name: 'Markdown支持', done: true },
-            { name: '文章删除', done: false },
-            { name: '草稿功能', done: false }
-          ]
-        },
-        {
-          name: '评论系统',
-          description: '文章评论、回复功能',
-          timestamp: '2024-04',
-          status: 'planned',
-          progress: 0,
-          features: [
-            { name: '评论发布', done: false },
-            { name: '评论回复', done: false },
-            { name: '评论管理', done: false }
-          ]
-        }
-      ],
-
-      changelog: [
-        {
-          date: '2024-03-15',
-          title: 'v0.2.0 发布',
-          content: '完成文章创建和编辑功能，支持Markdown编辑器',
-          type: 'success'
-        },
-        {
-          date: '2024-03-10',
-          title: 'v0.1.1 更新',
-          content: '修复用户登录状态保存问题，优化页面响应式布局',
-          type: 'warning'
-        },
-        {
-          date: '2024-03-01',
-          title: 'v0.1.0 发布',
-          content: '完成用户注册和登录功能，搭建基础项目框架',
-          type: 'primary'
-        }
-      ],
+      modules: [],
+      changelog: [],
 
       email: 'zhangsan@example.com',
       github: 'https://github.com/zhangsan',
       linkedin: 'https://linkedin.com/in/zhangsan',
       twitter: 'https://twitter.com/zhangsan'
+    });
+
+    // 计算总体完成进度
+    const calculateProgress = (commits) => {
+      const totalSteps = 10;
+      return Math.min(Math.round((commits.length / totalSteps) * 100), 100);
+    };
+
+    // 获取Git提交信息
+    const fetchGitCommits = async () => {
+      loading.value = true;
+      try {
+        const response = await getGitCommits(10);
+        commits.value = response.data;
+
+        // 更新模块状态
+        profile.value.modules = commits.value.map(commit => ({
+          name: '代码提交',
+          description: commit.message,
+          timestamp: new Date(commit.date).toLocaleDateString('zh-CN'),
+          status: 'completed',
+          progress: 100,
+          features: [
+            { name: commit.shortId, done: true }
+          ]
+        })).slice(0, 5); // 只显示最近5次提交
+
+        // 添加更新日志
+        profile.value.changelog = commits.value.map(commit => ({
+          date: new Date(commit.date).toLocaleDateString('zh-CN'),
+          title: commit.shortId,
+          content: commit.fullMessage || commit.message,
+          type: 'success'
+        })).slice(0, 5); // 只显示最近5次提交
+
+        // 更新总体进度
+        const progress = calculateProgress(commits.value);
+        profile.value.totalProgress = progress;
+      } catch (error) {
+        console.error('Failed to fetch git commits:', error);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    onMounted(() => {
+      fetchGitCommits();
     });
 
     // 根据技能级别获取标签类型
@@ -296,7 +276,9 @@ export default defineComponent({
     return {
       profile,
       getTagType,
-      progressColors
+      progressColors,
+      loading,
+      commits
     };
   }
 });
@@ -345,13 +327,12 @@ export default defineComponent({
 .skills-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 10px;
 }
 
 .skill-tag {
   display: flex;
   flex-direction: column;
-  gap: 5px;
   padding: 10px;
 }
 
@@ -411,23 +392,8 @@ export default defineComponent({
 }
 
 .contact-item i {
-  font-size: 1.2rem;
   width: 20px;
   text-align: center;
-}
-
-@media (max-width: 768px) {
-  .about-view {
-    padding: 10px;
-  }
-
-  .skills-container {
-    justify-content: center;
-  }
-
-  .contact-items {
-    flex-direction: column;
-  }
 }
 
 .progress-section {
@@ -485,6 +451,18 @@ export default defineComponent({
 }
 
 @media (max-width: 768px) {
+  .about-view {
+    padding: 10px;
+  }
+
+  .skills-container {
+    justify-content: center;
+  }
+
+  .contact-items {
+    flex-direction: column;
+  }
+
   .progress-header {
     flex-direction: column;
     gap: 15px;
