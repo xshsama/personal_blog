@@ -31,12 +31,8 @@
                         maxlength="200" show-word-limit />
                 </el-form-item>
 
-                <el-form-item label="文章内容" prop="content">
-                    <div class="editor-wrapper">
-                        <!-- 这里后续可以集成 Markdown 编辑器 -->
-                        <el-input v-model="articleForm.content" type="textarea" :rows="15"
-                            placeholder="请输入文章内容（支持 Markdown 格式）" />
-                    </div>
+                <el-form-item label="文章内容" prop="content" class="content-editor">
+                    <article-editor v-model="articleForm.content" />
                 </el-form-item>
 
                 <el-form-item label="封面图片" prop="coverImage">
@@ -62,27 +58,29 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import ArticleEditor from '../../components/ArticleEditor.vue'
 
 export default defineComponent({
     name: 'ArticleCreate',
     components: {
-        Plus
+        Plus,
+        ArticleEditor
     },
     setup() {
         const router = useRouter()
-        const formRef = ref(null)
+        const formRef = ref<any>(null)
         const publishing = ref(false)
 
         // 表单数据
         const articleForm = reactive({
             title: '',
             category: '',
-            tags: [],
+            tags: [] as string[],
             summary: '',
             content: '',
             coverImage: ''
@@ -103,14 +101,14 @@ export default defineComponent({
             ]
         }
 
-        // 模拟分类数据
+        // 分类数据
         const categories = [
             { value: 'tech', label: '技术' },
             { value: 'life', label: '生活' },
             { value: 'thoughts', label: '随想' }
         ]
 
-        // 模拟标签数据
+        // 标签数据
         const tags = [
             { value: 'vue', label: 'Vue.js' },
             { value: 'react', label: 'React' },
@@ -118,12 +116,12 @@ export default defineComponent({
         ]
 
         // 处理封面图片上传
-        const handleCoverSuccess = (res) => {
+        const handleCoverSuccess = (res: any) => {
             articleForm.coverImage = res.url
             ElMessage.success('封面上传成功')
         }
 
-        const beforeCoverUpload = (file) => {
+        const beforeCoverUpload = (file: File) => {
             const isImage = file.type.startsWith('image/')
             const isLt2M = file.size / 1024 / 1024 < 2
 
@@ -141,7 +139,7 @@ export default defineComponent({
         // 保存草稿
         const saveDraft = async () => {
             try {
-                await formRef.value.validate()
+                await formRef.value?.validate()
                 ElMessage.success('草稿保存成功')
             } catch (error) {
                 console.error('表单验证失败:', error)
@@ -151,7 +149,7 @@ export default defineComponent({
         // 发布文章
         const publishArticle = async () => {
             try {
-                await formRef.value.validate()
+                await formRef.value?.validate()
                 publishing.value = true
 
                 // 模拟发布请求
@@ -198,9 +196,12 @@ export default defineComponent({
     align-items: center;
 }
 
-.editor-wrapper {
-    border: 1px solid #dcdfe6;
-    border-radius: 4px;
+.content-editor {
+    height: 600px;
+}
+
+.content-editor :deep(.bytemd) {
+    height: 100%;
 }
 
 .cover-uploader {

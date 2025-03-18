@@ -13,16 +13,22 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "checkJs": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "noEmit": true
   },
   "include": [
     "src/**/*.ts", 
     "src/**/*.d.ts", 
     "src/**/*.tsx", 
-    "src/**/*.vue",
-    "src/**/*.js"
+    "src/**/*.vue"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

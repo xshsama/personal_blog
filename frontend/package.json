@@ -4,27 +4,36 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "vue-cli-service build",
+    "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "axios": "^0.27.2",
+    "@bytemd/plugin-gfm": "^1.21.0",
+    "@bytemd/plugin-highlight": "^1.21.0",
+    "@bytemd/vue-next": "^1.21.0",
+    "@element-plus/icons-vue": "^2.3.1",
+    "axios": "^1.8.3",
     "core-js": "^3.8.3",
     "element-plus": "^2.2.0",
-    "markdown-it": "^13.0.1",
-    "moment": "^2.29.4",
-    "vue": "^3.2.13",
+    "github-markdown-css": "^5.8.1",
+    "vue": "^3.5.13",
     "vue-router": "^4.0.3",
     "vuex": "^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
+    "@types/markdown-it": "^13.0.7",
+    "@types/node": "^20.11.16",
     "@types/webpack-env": "^1.18.8",
     "@vue/cli-plugin-router": "~5.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0",
     "@vue/cli-plugin-vuex": "~5.0.0",
-    "@vue/cli-service": "~5.0.0",
+    "@vue/cli-service": "^5.0.8",
+    "@vue/compiler-sfc": "^3.5.13",
+    "cli-plugin-typescript": "link:@@vue/cli-plugin-typescript",
     "sass": "^1.32.7",
     "sass-loader": "^12.0.0",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.8.2"
+    "typescript": "^5.3.3",
+    "vue-tsc": "^1.8.27"
   }
 }
