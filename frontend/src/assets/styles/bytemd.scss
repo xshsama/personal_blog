@@ -1,0 +1,111 @@
+// ByteMD 主题覆盖
+.bytemd {
+  --bg-color: var(--el-bg-color);
+  --border-color: var(--el-border-color);
+  --text-color: var(--el-text-color-primary);
+  --text-light-color: var(--el-text-color-regular);
+  --link-color: var(--el-color-primary);
+  
+  border-color: var(--el-border-color);
+  color: var(--el-text-color-primary);
+  background-color: var(--el-bg-color);
+
+  .bytemd-toolbar {
+    background-color: var(--el-bg-color-light);
+    border-color: var(--el-border-color);
+
+    .bytemd-toolbar-icon {
+      color: var(--el-text-color-regular);
+
+      &:hover {
+        color: var(--el-text-color-primary);
+        background-color: var(--el-fill-color-light);
+      }
+
+      &.active {
+        color: var(--el-color-primary);
+        background-color: var(--el-color-primary-light-9);
+      }
+    }
+  }
+
+  .bytemd-editor {
+    background-color: var(--el-bg-color);
+
+    .cm-editor {
+      background-color: var(--el-bg-color);
+      color: var(--el-text-color-primary);
+
+      .cm-line {
+        color: var(--el-text-color-primary);
+      }
+
+      .cm-activeLineGutter,
+      .cm-activeLine {
+        background-color: var(--el-fill-color-light);
+      }
+    }
+  }
+
+  .bytemd-preview {
+    background-color: var(--el-bg-color);
+    color: var(--el-text-color-primary);
+
+    .markdown-body {
+      color: var(--el-text-color-primary);
+      background-color: transparent;
+
+      h1, h2, h3, h4, h5, h6 {
+        color: var(--el-text-color-primary);
+        border-bottom-color: var(--el-border-color);
+      }
+
+      hr {
+        border-color: var(--el-border-color);
+      }
+
+      blockquote {
+        color: var(--el-text-color-regular);
+        border-left-color: var(--el-border-color-darker);
+      }
+
+      code {
+        color: var(--el-color-danger);
+        background-color: var(--el-fill-color-light);
+      }
+
+      pre {
+        background-color: var(--el-fill-color);
+        border-radius: var(--el-border-radius-base);
+
+        code {
+          color: var(--el-text-color-primary);
+          background-color: transparent;
+        }
+      }
+
+      table {
+        th, td {
+          border-color: var(--el-border-color);
+        }
+
+        tr:nth-child(2n) {
+          background-color: var(--el-fill-color-light);
+        }
+      }
+
+      img {
+        max-width: 100%;
+        border-radius: var(--el-border-radius-base);
+      }
+
+      a {
+        color: var(--el-color-primary);
+
+        &:hover {
+          color: var(--el-color-primary-light-3);
+        }
+      }
+    }
+  }
+}

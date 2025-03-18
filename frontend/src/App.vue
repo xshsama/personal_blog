@@ -2,15 +2,16 @@
   <MainLayout />
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue';
 import MainLayout from './layout/MainLayout.vue';
 
-export default {
+export default defineComponent({
   name: 'App',
   components: {
     MainLayout
   }
-}
+})
 </script>
 
 <style lang="scss">
