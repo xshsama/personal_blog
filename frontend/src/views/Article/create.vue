@@ -12,19 +12,21 @@
                     <el-input v-model="articleForm.title" placeholder="请输入文章标题" maxlength="100" show-word-limit />
                 </el-form-item>
 
-                <el-form-item label="文章分类" prop="category">
-                    <el-select v-model="articleForm.category" placeholder="请选择文章分类" clearable>
-                        <el-option v-for="item in categories" :key="item.value" :label="item.label"
-                            :value="item.value" />
-                    </el-select>
-                </el-form-item>
+                <div class="form-row">
+                    <el-form-item label="文章分类" prop="category" class="category-select">
+                        <el-select v-model="articleForm.category" placeholder="请选择文章分类" clearable>
+                            <el-option v-for="item in categories" :key="item.value" :label="item.label"
+                                :value="item.value" />
+                        </el-select>
+                    </el-form-item>
 
-                <el-form-item label="文章标签" prop="tags">
-                    <el-select v-model="articleForm.tags" multiple filterable allow-create default-first-option
-                        placeholder="请选择或输入标签">
-                        <el-option v-for="item in tags" :key="item.value" :label="item.label" :value="item.value" />
-                    </el-select>
-                </el-form-item>
+                    <el-form-item label="文章标签" prop="tags" class="tags-select">
+                        <el-select v-model="articleForm.tags" multiple filterable allow-create default-first-option
+                            placeholder="请选择或输入标签">
+                            <el-option v-for="item in tags" :key="item.value" :label="item.label" :value="item.value" />
+                        </el-select>
+                    </el-form-item>
+                </div>
 
                 <el-form-item label="文章摘要" prop="summary">
                     <el-input v-model="articleForm.summary" type="textarea" :rows="3" placeholder="请输入文章摘要"
@@ -35,24 +37,24 @@
                     <article-editor v-model="articleForm.content" />
                 </el-form-item>
 
-                <el-form-item label="封面图片" prop="coverImage">
-                    <el-upload class="cover-uploader" action="/api/upload" :show-file-list="false"
-                        :on-success="handleCoverSuccess" :before-upload="beforeCoverUpload">
-                        <img v-if="articleForm.coverImage" :src="articleForm.coverImage" class="cover-image" />
-                        <el-icon v-else class="cover-uploader-icon">
-                            <Plus />
-                        </el-icon>
-                    </el-upload>
-                </el-form-item>
+                <div class="bottom-section">
+                    <el-form-item label="封面图片" prop="coverImage" class="cover-section">
+                        <el-upload class="cover-uploader" action="/api/upload" :show-file-list="false"
+                            :on-success="handleCoverSuccess" :before-upload="beforeCoverUpload">
+                            <img v-if="articleForm.coverImage" :src="articleForm.coverImage" class="cover-image" />
+                            <el-icon v-else class="cover-uploader-icon">
+                                <Plus />
+                            </el-icon>
+                        </el-upload>
+                    </el-form-item>
 
-                <el-form-item>
                     <div class="form-actions">
                         <el-button type="info" @click="saveDraft">保存草稿</el-button>
                         <el-button type="primary" @click="publishArticle" :loading="publishing">
                             {{ publishing ? '发布中...' : '发布文章' }}
                         </el-button>
                     </div>
-                </el-form-item>
+                </div>
             </el-form>
         </el-card>
     </div>
@@ -196,12 +198,50 @@ export default defineComponent({
     align-items: center;
 }
 
-.content-editor {
-    height: 600px;
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
+.category-select {
+    flex: 1;
+}
+
+.tags-select {
+    flex: 2;
+}
+
+.content-editor {
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.content-editor :deep(.el-form-item__content) {
+    height: calc(100% - 22px);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.content-editor :deep(.article-editor),
 .content-editor :deep(.bytemd) {
-    height: 100%;
+    width: 100%;
+    max-width: 100%;
+}
+
+.bottom-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 30px;
+    gap: 20px;
+}
+
+.cover-section {
+    margin-bottom: 0;
 }
 
 .cover-uploader {
@@ -237,7 +277,7 @@ export default defineComponent({
     display: flex;
     justify-content: flex-end;
     gap: 20px;
-    margin-top: 20px;
+    align-self: flex-end;
 }
 
 :deep(.el-upload) {

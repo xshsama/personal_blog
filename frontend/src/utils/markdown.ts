@@ -1,5 +1,7 @@
+import breaks from '@bytemd/plugin-breaks'
 import gfm from '@bytemd/plugin-gfm'
 import highlight from '@bytemd/plugin-highlight'
+import mediumZoom from '@bytemd/plugin-medium-zoom'
 import { BytemdPlugin } from 'bytemd'
 import zh from 'bytemd/locales/zh_Hans.json'
 import 'github-markdown-css/github-markdown-light.css'
@@ -17,13 +19,18 @@ export interface MarkdownConfig {
     }
 }
 
-// 扩展的 GFM 功能配置
+// GFM 插件配置
 const gfmOptions = {
     locale: {
         'Table': '表格',
         'Strikethrough': '删除线',
         'Task List': '任务列表',
-        'Update Table': '更新表格'
+        'Update Table': '更新表格',
+        'Ordered List': '有序列表',
+        'Unordered List': '无序列表',
+        'Task': '任务',
+        'Link': '链接',
+        'Image': '图片'
     }
 }
 
@@ -31,7 +38,7 @@ const gfmOptions = {
 const highlightOptions = {
     detect: true,
     init: (hljs: any) => {
-        // 可以在这里注册更多的语言高亮
+        // 可以在这里注册更多的语言高亮支持
     }
 }
 
@@ -41,7 +48,6 @@ const linkPlugin = (): BytemdPlugin => ({
     viewerEffect({ markdownBody }) {
         const links = markdownBody.querySelectorAll('a')
         links.forEach(link => {
-            // 为外部链接添加新窗口打开和安全属性
             if (link.hostname !== window.location.hostname) {
                 link.setAttribute('target', '_blank')
                 link.setAttribute('rel', 'noopener noreferrer')
@@ -50,44 +56,28 @@ const linkPlugin = (): BytemdPlugin => ({
     }
 })
 
-// 自定义图片处理插件
-const imagePlugin = (): BytemdPlugin => ({
-    name: 'custom-image',
-    viewerEffect({ markdownBody }) {
-        const images = markdownBody.querySelectorAll('img')
-        images.forEach(img => {
-            // 添加加载失败时的默认图片
-            img.addEventListener('error', () => {
-                img.src = 'https://via.placeholder.com/800x400?text=Image+Load+Failed'
-            })
-            // 添加图片点击预览功能
-            img.style.cursor = 'pointer'
-            img.addEventListener('click', (e) => {
-                e.preventDefault()
-                const viewer = document.querySelector('.el-image-viewer__wrapper')
-                if (!viewer) {
-                    const event = new CustomEvent('preview-image', {
-                        detail: { url: img.src }
-                    })
-                    document.dispatchEvent(event)
-                }
-            })
-        })
-    }
-})
-
 export function createMarkdownConfig(options?: Partial<MarkdownConfig>): MarkdownConfig {
     return {
         plugins: [
-            gfm(gfmOptions),
+            gfm({
+                locale: zh
+            }),
             highlight(highlightOptions),
+            breaks(),
+            mediumZoom(),
             linkPlugin(),
-            imagePlugin()
+            ...(options?.plugins || [])
         ],
-        locale: zh,
+        locale: {
+            ...zh,
+            'Write': '编辑',
+            'Preview': '预览',
+            'Split': '分屏'
+        },
         uploadImages: options?.uploadImages,
         editorConfig: {
             mode: 'split',
+            previewTheme: 'github',
             ...options?.editorConfig
         }
     }
