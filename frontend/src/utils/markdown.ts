@@ -1,5 +1,4 @@
 import breaks from '@bytemd/plugin-breaks'
-import gfm from '@bytemd/plugin-gfm'
 import highlight from '@bytemd/plugin-highlight'
 import mediumZoom from '@bytemd/plugin-medium-zoom'
 import { BytemdPlugin } from 'bytemd'
@@ -16,21 +15,6 @@ export interface MarkdownConfig {
         mode?: 'split' | 'tab'
         previewTheme?: string
         editorTheme?: string
-    }
-}
-
-// GFM 插件配置
-const gfmOptions = {
-    locale: {
-        'Table': '表格',
-        'Strikethrough': '删除线',
-        'Task List': '任务列表',
-        'Update Table': '更新表格',
-        'Ordered List': '有序列表',
-        'Unordered List': '无序列表',
-        'Task': '任务',
-        'Link': '链接',
-        'Image': '图片'
     }
 }
 
@@ -56,24 +40,32 @@ const linkPlugin = (): BytemdPlugin => ({
     }
 })
 
+// 添加自定义样式插件
+const customStylePlugin = (): BytemdPlugin => ({
+    name: 'custom-style',
+    viewerEffect({ markdownBody }) {
+        // 调整封面图片位置的样式
+        const style = document.createElement('style')
+        style.textContent = `
+            .markdown-body img:first-of-type {
+                margin-top: 2rem !important;
+            }
+        `
+        markdownBody.appendChild(style)
+    }
+})
+
 export function createMarkdownConfig(options?: Partial<MarkdownConfig>): MarkdownConfig {
     return {
         plugins: [
-            gfm({
-                locale: zh
-            }),
             highlight(highlightOptions),
             breaks(),
             mediumZoom(),
             linkPlugin(),
+            customStylePlugin(),
             ...(options?.plugins || [])
         ],
-        locale: {
-            ...zh,
-            'Write': '编辑',
-            'Preview': '预览',
-            'Split': '分屏'
-        },
+        locale: zh,
         uploadImages: options?.uploadImages,
         editorConfig: {
             mode: 'split',

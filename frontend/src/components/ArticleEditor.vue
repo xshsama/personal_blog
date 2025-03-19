@@ -1,7 +1,7 @@
 <template>
   <div class="article-editor">
-    <Editor :value="modelValue" :plugins="config.plugins" :locale="locale" :mode="editorMode" :placeholder="placeholder"
-      :previewDebounce="300" :maxLength="maxLength" @change="handleChange" />
+    <Editor :value="modelValue" :plugins="config.plugins" :locale="config.locale" :mode="editorMode"
+      :placeholder="placeholder" :previewDebounce="300" :maxLength="maxLength" @change="handleChange" />
     <el-image-viewer v-if="previewImage" :url-list="[previewImage]" :initial-index="0" @close="previewImage = ''" />
   </div>
 </template>
@@ -9,7 +9,6 @@
 <script lang="ts">
 import { Editor } from '@bytemd/vue-next'
 import 'bytemd/dist/index.css'
-import zh from 'bytemd/locales/zh_Hans.json'
 import { defineComponent, onMounted, ref, watch } from 'vue'
 import { createMarkdownConfig } from '../utils/markdown'
 
@@ -39,7 +38,6 @@ export default defineComponent({
   },
   emits: ['update:modelValue', 'preview-image'],
   setup(props, { emit }) {
-    const locale = ref(zh)
     const previewImage = ref('')
     const editorMode = ref(props.mode)
 
@@ -67,7 +65,6 @@ export default defineComponent({
 
     return {
       config,
-      locale,
       previewImage,
       editorMode,
       handleChange
