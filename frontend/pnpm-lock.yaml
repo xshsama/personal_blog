@@ -18,7 +18,7 @@ importers:
         specifier: ^1.22.0
         version: 1.22.0(bytemd@1.22.0)
       '@bytemd/plugin-gfm':
-        specifier: ^1.21.0
+        specifier: ^1.22.0
         version: 1.22.0(bytemd@1.22.0)
       '@bytemd/plugin-highlight':
         specifier: ^1.21.0
