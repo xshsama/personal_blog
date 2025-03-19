@@ -38,6 +38,14 @@ declare module '@bytemd/plugin-highlight' {
     export default function highlight(options?: HighlightOptions): BytemdPlugin
 }
 
+declare module '@bytemd/plugin-mermaid' {
+    import { BytemdPlugin } from 'bytemd'
+    interface BytemdPluginMermaidOptions {
+        mermaid?: any
+    }
+    export default function mermaid(options?: BytemdPluginMermaidOptions): BytemdPlugin
+}
+
 declare module 'bytemd' {
     export interface BytemdPlugin {
         name?: string

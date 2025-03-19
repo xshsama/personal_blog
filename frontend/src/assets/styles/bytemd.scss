@@ -1,92 +1,136 @@
-// ByteMD 主题覆盖
+// ByteMD 主题变量
 .bytemd {
   --bg-color: var(--el-bg-color);
   --border-color: var(--el-border-color);
   --text-color: var(--el-text-color-primary);
   --text-light-color: var(--el-text-color-regular);
   --link-color: var(--el-color-primary);
+  --font-family: var(--el-font-family);
+  --select-bg-color: var(--el-color-primary-light-9);
+  --tab-color: var(--el-text-color-regular);
+  --tab-active-color: var(--el-color-primary);
+  --tab-bg-color: var(--el-fill-color-light);
+  --tab-active-bg-color: var(--el-color-primary-light-9);
   
-  border-color: var(--el-border-color);
-  color: var(--el-text-color-primary);
-  background-color: var(--el-bg-color);
+  border-color: var(--border-color);
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  font-family: var(--font-family);
 
   .bytemd-toolbar {
     background-color: var(--el-bg-color-light);
-    border-color: var(--el-border-color);
+    border-color: var(--border-color);
+
+    .bytemd-toolbar-tab {
+      color: var(--tab-color);
+      
+      &:hover {
+        color: var(--tab-active-color);
+        background-color: var(--tab-bg-color);
+      }
+
+      &.bytemd-toolbar-tab-active {
+        color: var (--tab-active-color);
+        background-color: var(--tab-active-bg-color);
+      }
+    }
 
     .bytemd-toolbar-icon {
-      color: var(--el-text-color-regular);
+      color: var(--text-light-color);
+      transition: all 0.3s;
 
       &:hover {
-        color: var(--el-text-color-primary);
-        background-color: var(--el-fill-color-light);
+        color: var(--el-color-primary);
+        background-color: var(--el-color-primary-light-9);
       }
 
       &.active {
         color: var(--el-color-primary);
-        background-color: var(--el-color-primary-light-9);
+        background-color: var(--el-color-primary-light-8);
       }
     }
   }
 
-  .bytemd-editor {
-    background-color: var(--el-bg-color);
+  .bytemd-split {
+    border-color: var(--border-color);
+  }
 
+  .bytemd-editor {
     .cm-editor {
-      background-color: var(--el-bg-color);
-      color: var(--el-text-color-primary);
+      background-color: var(--bg-color);
 
       .cm-line {
-        color: var(--el-text-color-primary);
+        color: var(--text-color);
       }
 
       .cm-activeLineGutter,
       .cm-activeLine {
         background-color: var(--el-fill-color-light);
       }
+
+      .cm-gutters {
+        background-color: var(--el-fill-color-light);
+        border-color: var(--border-color);
+      }
+
+      .cm-cursor {
+        border-left-color: var(--el-color-primary);
+      }
+
+      .cm-selectionBackground {
+        background-color: var(--select-bg-color) !important;
+      }
+
+      .cm-focused .cm-selectionBackground {
+        background-color: var(--select-bg-color) !important;
+      }
     }
   }
 
   .bytemd-preview {
-    background-color: var(--el-bg-color);
-    color: var(--el-text-color-primary);
-
     .markdown-body {
-      color: var(--el-text-color-primary);
-      background-color: transparent;
+      color: var(--text-color);
+      font-family: var(--font-family);
 
       h1, h2, h3, h4, h5, h6 {
-        color: var(--el-text-color-primary);
-        border-bottom-color: var(--el-border-color);
+        color: var(--text-color);
+        border-bottom-color: var(--border-color);
+        margin: 1.5em 0 1em;
       }
 
       hr {
-        border-color: var(--el-border-color);
+        background-color: var(--border-color);
       }
 
       blockquote {
-        color: var(--el-text-color-regular);
-        border-left-color: var(--el-border-color-darker);
+        color: var(--text-light-color);
+        border-left: 4px solid var(--el-color-primary-light-3);
+        background-color: var(--el-fill-color-light);
+        margin: 1em 0;
       }
 
       code {
         color: var(--el-color-danger);
         background-color: var(--el-fill-color-light);
+        border-radius: var(--el-border-radius-base);
+        font-family: var(--el-font-family-monospace);
       }
 
       pre {
         background-color: var(--el-fill-color);
         border-radius: var(--el-border-radius-base);
+        padding: 1em;
 
         code {
-          color: var(--el-text-color-primary);
+          color: var(--text-color);
           background-color: transparent;
         }
       }
 
       table {
         th, td {
-          border-color: var(--el-border-color);
+          border-color: var(--border-color);
+          padding: 0.5em 1em;
         }
 
         tr:nth-child(2n) {
@@ -97,6 +141,7 @@
       img {
         max-width: 100%;
         border-radius: var(--el-border-radius-base);
+        border: 1px solid var(--border-color);
       }
 
       a {
@@ -104,8 +149,29 @@
 
         &:hover {
           color: var(--el-color-primary-light-3);
+          text-decoration: underline;
+        }
+      }
+
+      ul, ol {
+        padding-left: 2em;
+        margin: 1em 0;
+      }
+
+      .task-list-item {
+        list-style: none;
+        margin-left: -1em;
+
+        input[type="checkbox"] {
+          margin-right: 0.5em;
         }
       }
     }
+  }
+
+  .bytemd-status {
+    background-color: var(--el-fill-color-light);
+    border-color: var(--border-color);
+    color: var(--text-light-color);
   }
 }
