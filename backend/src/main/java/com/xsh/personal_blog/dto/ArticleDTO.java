@@ -1,5 +1,6 @@
 package com.xsh.personal_blog.dto;
 
+import java.sql.Date;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
@@ -27,4 +28,7 @@ public class ArticleDTO {
     private String content;
 
     private Boolean isDraft = false;
+
+    private Date publishDate;
+
 }

@@ -39,8 +39,9 @@
 
                 <div class="bottom-section">
                     <el-form-item label="封面图片" prop="coverImage" class="cover-section">
-                        <el-upload class="cover-uploader" action="/api/upload" :show-file-list="false"
-                            :on-success="handleCoverSuccess" :before-upload="beforeCoverUpload">
+                        <el-upload class="cover-uploader" action="/api/images/upload" :headers="uploadHeaders"
+                            name="file" :show-file-list="false" :on-success="handleCoverSuccess"
+                            :on-error="handleCoverError" :before-upload="beforeCoverUpload">
                             <img v-if="articleForm.coverImage" :src="articleForm.coverImage" class="cover-image" />
                             <el-icon v-else class="cover-uploader-icon">
                                 <Plus />
@@ -63,8 +64,9 @@
 <script lang="ts">
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { defineComponent, reactive, ref } from 'vue'
+import { computed, defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import ArticleEditor from '../../components/ArticleEditor.vue'
 
 export default defineComponent({
@@ -75,8 +77,14 @@ export default defineComponent({
     },
     setup() {
         const router = useRouter()
+        const store = useStore()
         const formRef = ref<any>(null)
         const publishing = ref(false)
+
+        // 上传请求头
+        const uploadHeaders = computed(() => ({
+            Authorization: `Bearer ${store.state.auth.token}`
+        }))
 
         // 表单数据
         const articleForm = reactive({
@@ -117,12 +125,23 @@ export default defineComponent({
             { value: 'javascript', label: 'JavaScript' }
         ]
 
-        // 处理封面图片上传
-        const handleCoverSuccess = (res: any) => {
-            articleForm.coverImage = res.url
-            ElMessage.success('封面上传成功')
+        // 处理封面图片上传成功
+        const handleCoverSuccess = (response: any) => {
+            if (response.success) {
+                articleForm.coverImage = response.url
+                ElMessage.success('封面上传成功')
+            } else {
+                ElMessage.error(response.message || '封面上传失败')
+            }
         }
 
+        // 处理封面图片上传失败
+        const handleCoverError = (error: any) => {
+            console.error('封面上传失败:', error)
+            ElMessage.error('封面上传失败')
+        }
+
+        // 上传前验证
         const beforeCoverUpload = (file: File) => {
             const isImage = file.type.startsWith('image/')
             const isLt2M = file.size / 1024 / 1024 < 2
@@ -172,7 +191,9 @@ export default defineComponent({
             categories,
             tags,
             publishing,
+            uploadHeaders,
             handleCoverSuccess,
+            handleCoverError,
             beforeCoverUpload,
             saveDraft,
             publishArticle

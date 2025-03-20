@@ -19,7 +19,7 @@ import com.xsh.personal_blog.service.GitService;
 
 @RestController
 @RequestMapping("/api/git")
-@CrossOrigin(origins = "${app.cors.allowed-origins}",allowCredentials = "true")
+@CrossOrigin(origins = "${app.cors.allowed-origins}", allowCredentials = "true")
 public class GitController {
     private static final Logger logger = LoggerFactory.getLogger(GitController.class);
 
