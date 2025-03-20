@@ -62,7 +62,8 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/auth/login", "/api/auth/register",
                                                                 "/api/auth/refresh",
                                                                 "/api/auth/logout", "/h2-console/**",
-                                                                "/api/git/commits")
+                                                                "/api/git/commits",
+                                                                "/api/images/upload") // 添加图片上传端点到允许列表
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session
@@ -70,6 +71,8 @@ public class SecurityConfig {
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                                 .headers(headers -> headers
                                                 .frameOptions(frame -> frame.disable()));
+
+                System.out.println("Security config: permitted URL patterns include /api/images/upload");
 
                 return http.build();
         }
