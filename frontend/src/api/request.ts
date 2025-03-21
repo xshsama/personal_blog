@@ -15,7 +15,10 @@ const service: AxiosInstance = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        // 可以在这里添加认证相关的headers
+        const token = localStorage.getItem('token')
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+        }
         return config
     },
     (error: AxiosError) => {
@@ -27,14 +30,18 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
     (response: AxiosResponse) => {
-        // 如果响应成功就返回响应的数据
         return response
     },
     (error: AxiosError<ApiErrorResponse>) => {
         console.error('Response error:', error)
-        ElMessage.error(error.response?.data?.error || '请求失败')
+        if (error.response?.status === 401) {
+            ElMessage.error('认证失败，请重新登录')
+            // 可以在这里处理token过期的情况
+        } else {
+            ElMessage.error(error.response?.data?.message || '请求失败')
+        }
         return Promise.reject(error)
     },
 )
 
-export default service
+export default service;

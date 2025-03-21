@@ -24,7 +24,6 @@ public class ArticleDTO {
     private String coverImage;
 
     @NotBlank(message = "文章内容不能为空")
-    @Size(min = 100, message = "文章内容不能少于100字符")
     private String content;
 
     private Boolean isDraft = false;

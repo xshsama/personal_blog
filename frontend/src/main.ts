@@ -1,5 +1,4 @@
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import axios, { InternalAxiosRequestConfig } from 'axios'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import type { App as VueApp } from 'vue'
@@ -17,25 +16,6 @@ const store = createStore({
     },
 })
 
-// 配置全局 axios 默认值
-axios.defaults.baseURL = '/api'
-axios.defaults.headers.common['Content-Type'] = 'application/json'
-
-// 添加全局请求拦截器
-axios.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-        const token = localStorage.getItem('token')
-        if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-    },
-    (error) => {
-        return Promise.reject(error)
-    },
-)
-
-// 创建 Vue 应用实例
 const app: VueApp = createApp(App)
 
 // 注册所有图标

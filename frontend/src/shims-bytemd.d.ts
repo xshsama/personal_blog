@@ -3,17 +3,23 @@ declare module '@bytemd/vue-next' {
 
     export interface EditorProps {
         value: string
-        plugins?: any[]
+        plugins?: BytemdPlugin[]
         uploadImages?: (files: File[]) => Promise<string[]>
         mode?: 'split' | 'tab'
         previewTheme?: string
         editorTheme?: string
         locale?: any
+        placeholder?: string
+        maxLength?: number
+        sanitize?: (schema: any) => any
+        containerClass?: string
+        editorClass?: string
+        previewClass?: string
     }
 
     export interface ViewerProps {
         value: string
-        plugins?: any[]
+        plugins?: BytemdPlugin[]
         sanitize?: (schema: any) => any
     }
 
@@ -44,6 +50,16 @@ declare module '@bytemd/plugin-mermaid' {
         mermaid?: any
     }
     export default function mermaid(options?: BytemdPluginMermaidOptions): BytemdPlugin
+}
+
+declare module '@bytemd/plugin-medium-zoom' {
+    import { BytemdPlugin } from 'bytemd'
+    export default function mediumZoom(): BytemdPlugin
+}
+
+declare module '@bytemd/plugin-breaks' {
+    import { BytemdPlugin } from 'bytemd'
+    export default function breaks(): BytemdPlugin
 }
 
 declare module 'bytemd' {

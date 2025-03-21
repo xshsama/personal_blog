@@ -10,6 +10,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.xsh.personal_blog.entity.User;
 
 @Component
 public class JwtUtil {
@@ -23,17 +24,24 @@ public class JwtUtil {
     private long refreshTokenExpire;
 
     public String generateAccessToken(UserDetails userDetails) {
-        return generateToken(userDetails, accessTokenExpire);
+        if (userDetails instanceof User) {
+            return generateToken(userDetails, ((User) userDetails).getId(), accessTokenExpire);
+        }
+        return generateToken(userDetails, null, accessTokenExpire);
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(userDetails, refreshTokenExpire);
+        if (userDetails instanceof User) {
+            return generateToken(userDetails, ((User) userDetails).getId(), refreshTokenExpire);
+        }
+        return generateToken(userDetails, null, refreshTokenExpire);
     }
 
-    private String generateToken(UserDetails userDetails, long expiration) {
+    private String generateToken(UserDetails userDetails, Integer userId, long expiration) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
                 .withSubject(userDetails.getUsername())
+                .withClaim("userId", userId)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expiration))
                 .sign(algorithm);
@@ -58,6 +66,18 @@ public class JwtUtil {
                     .build()
                     .verify(token);
             return decodedJWT.getSubject();
+        } catch (JWTVerificationException exception) {
+            return null;
+        }
+    }
+
+    public Integer getUserIdFromToken(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            DecodedJWT decodedJWT = JWT.require(algorithm)
+                    .build()
+                    .verify(token);
+            return decodedJWT.getClaim("userId").asInt();
         } catch (JWTVerificationException exception) {
             return null;
         }
