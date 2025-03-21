@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,6 +23,7 @@ import com.xsh.personal_blog.service.UserService;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
         @Autowired
@@ -61,9 +63,13 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/login", "/api/auth/register",
                                                                 "/api/auth/refresh",
-                                                                "/api/auth/logout", "/h2-console/**",
+                                                                "/api/auth/logout",
+                                                                "/h2-console/**",
                                                                 "/api/git/commits",
-                                                                "/api/images/upload") // 添加图片上传端点到允许列表
+                                                                "/api/images/upload",
+                                                                "/api/articles",
+                                                                "/api/articles/search",
+                                                                "/api/articles/{id}")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session
@@ -71,8 +77,6 @@ public class SecurityConfig {
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                                 .headers(headers -> headers
                                                 .frameOptions(frame -> frame.disable()));
-
-                System.out.println("Security config: permitted URL patterns include /api/images/upload");
 
                 return http.build();
         }
@@ -82,7 +86,7 @@ public class SecurityConfig {
                 CorsConfiguration configuration = new CorsConfiguration();
                 configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
                 configuration.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
-                configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));
+                configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
                 configuration.setAllowCredentials(true);
                 configuration.setMaxAge(maxAge);
 

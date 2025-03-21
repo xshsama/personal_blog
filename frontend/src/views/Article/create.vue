@@ -39,14 +39,8 @@
 
                 <div class="bottom-section">
                     <el-form-item label="封面图片" prop="coverImage" class="cover-section">
-                        <el-upload class="cover-uploader" action="/api/images/upload" :headers="uploadHeaders"
-                            name="file" :show-file-list="false" :on-success="handleCoverSuccess"
-                            :on-error="handleCoverError" :before-upload="beforeCoverUpload">
-                            <img v-if="articleForm.coverImage" :src="articleForm.coverImage" class="cover-image" />
-                            <el-icon v-else class="cover-uploader-icon">
-                                <Plus />
-                            </el-icon>
-                        </el-upload>
+                        <image-upload v-model:value="articleForm.coverImage" @upload-success="handleCoverSuccess"
+                            @upload-error="handleCoverError" />
                     </el-form-item>
 
                     <div class="form-actions">
@@ -62,108 +56,100 @@
 </template>
 
 <script lang="ts">
-import { Plus } from '@element-plus/icons-vue'
+import ArticleEditor from '@/components/ArticleEditor.vue'
+import ImageUpload from '@/components/ImageUpload.vue'
+import articleService from '@/services/article.service'
+import type { ArticleDTO } from '@/types/article'
+import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
-import { computed, defineComponent, reactive, ref } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
-import ArticleEditor from '../../components/ArticleEditor.vue'
+
+interface CategoryOption {
+    value: string
+    label: string
+}
+
+interface TagOption {
+    value: string
+    label: string
+}
 
 export default defineComponent({
     name: 'ArticleCreate',
     components: {
-        Plus,
-        ArticleEditor
+        ArticleEditor,
+        ImageUpload
     },
     setup() {
         const router = useRouter()
-        const store = useStore()
-        const formRef = ref<any>(null)
+        const formRef = ref<FormInstance>()
         const publishing = ref(false)
 
-        // 上传请求头
-        const uploadHeaders = computed(() => ({
-            Authorization: `Bearer ${store.state.auth.token}`
-        }))
-
-        // 表单数据
-        const articleForm = reactive({
+        const articleForm = reactive<ArticleDTO>({
             title: '',
             category: '',
-            tags: [] as string[],
+            tags: [],
             summary: '',
             content: '',
-            coverImage: ''
+            coverImage: '',
+            isDraft: false
         })
 
-        // 表单验证规则
-        const rules = {
+        const rules = reactive<FormRules>({
             title: [
                 { required: true, message: '请输入文章标题', trigger: 'blur' },
-                { min: 2, max: 100, message: '标题长度在 2 到 100 个字符', trigger: 'blur' }
+                { min: 2, max: 100, message: '标题长度必须在2-100字符之间', trigger: 'blur' }
             ],
             category: [
                 { required: true, message: '请选择文章分类', trigger: 'change' }
             ],
+            tags: [
+                { required: true, message: '请至少选择一个标签', trigger: 'change' }
+            ],
+            summary: [
+                { required: true, message: '请输入文章摘要', trigger: 'blur' },
+                { max: 200, message: '摘要不能超过200字符', trigger: 'blur' }
+            ],
             content: [
-                { required: true, message: '请输入文章内容', trigger: 'blur' },
-                { min: 100, message: '文章内容不能少于 100 个字符', trigger: 'blur' }
+                { required: true, message: '请输入文章内容', trigger: 'blur' }
             ]
-        }
+        })
 
-        // 分类数据
-        const categories = [
+        const categories: CategoryOption[] = [
             { value: 'tech', label: '技术' },
             { value: 'life', label: '生活' },
             { value: 'thoughts', label: '随想' }
         ]
 
-        // 标签数据
-        const tags = [
+        const tags: TagOption[] = [
             { value: 'vue', label: 'Vue.js' },
             { value: 'react', label: 'React' },
             { value: 'javascript', label: 'JavaScript' }
         ]
 
         // 处理封面图片上传成功
-        const handleCoverSuccess = (response: any) => {
-            if (response.success) {
-                articleForm.coverImage = response.url
-                ElMessage.success('封面上传成功')
-            } else {
-                ElMessage.error(response.message || '封面上传失败')
-            }
+        const handleCoverSuccess = (url: string) => {
+            articleForm.coverImage = url
         }
 
         // 处理封面图片上传失败
-        const handleCoverError = (error: any) => {
+        const handleCoverError = (error: Error) => {
             console.error('封面上传失败:', error)
-            ElMessage.error('封面上传失败')
-        }
-
-        // 上传前验证
-        const beforeCoverUpload = (file: File) => {
-            const isImage = file.type.startsWith('image/')
-            const isLt2M = file.size / 1024 / 1024 < 2
-
-            if (!isImage) {
-                ElMessage.error('封面图片只能是图片格式!')
-                return false
-            }
-            if (!isLt2M) {
-                ElMessage.error('封面图片大小不能超过 2MB!')
-                return false
-            }
-            return true
+            ElMessage.error('封面上传失败：' + error.message)
         }
 
         // 保存草稿
         const saveDraft = async () => {
             try {
                 await formRef.value?.validate()
+                articleForm.isDraft = true
+                const response = await articleService.createArticle(articleForm)
                 ElMessage.success('草稿保存成功')
+                router.push(`/article/${response.id}`)
             } catch (error) {
-                console.error('表单验证失败:', error)
+                console.error('保存草稿失败:', error)
+                ElMessage.error('保存失败，请检查表单并重试')
             }
         }
 
@@ -172,15 +158,15 @@ export default defineComponent({
             try {
                 await formRef.value?.validate()
                 publishing.value = true
-
-                // 模拟发布请求
-                setTimeout(() => {
-                    publishing.value = false
-                    ElMessage.success('文章发布成功！')
-                    router.push('/articles')
-                }, 1500)
+                articleForm.isDraft = false
+                const response = await articleService.createArticle(articleForm)
+                ElMessage.success('文章发布成功！')
+                router.push(`/article/${response.id}`)
             } catch (error) {
-                console.error('表单验证失败:', error)
+                console.error('发布失败:', error)
+                ElMessage.error('发布失败，请检查表单并重试')
+            } finally {
+                publishing.value = false
             }
         }
 
@@ -191,10 +177,8 @@ export default defineComponent({
             categories,
             tags,
             publishing,
-            uploadHeaders,
             handleCoverSuccess,
             handleCoverError,
-            beforeCoverUpload,
             saveDraft,
             publishArticle
         }
@@ -207,6 +191,8 @@ export default defineComponent({
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
+    padding-bottom: 100px;
+    /* 添加底部padding，为固定按钮留出空间 */
 }
 
 .editor-card {
@@ -254,55 +240,42 @@ export default defineComponent({
 }
 
 .bottom-section {
+    margin-top: 40px;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-top: 30px;
+    flex-direction: column;
     gap: 20px;
 }
 
 .cover-section {
-    margin-bottom: 0;
-}
-
-.cover-uploader {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.3s;
-}
-
-.cover-uploader:hover {
-    border-color: #409EFF;
-}
-
-.cover-uploader-icon {
-    font-size: 28px;
-    color: #8c939d;
-    width: 178px;
-    height: 178px;
-    text-align: center;
-    line-height: 178px;
-}
-
-.cover-image {
-    width: 178px;
-    height: 178px;
-    display: block;
-    object-fit: cover;
+    margin-bottom: 20px;
+    width: 300px;
 }
 
 .form-actions {
     display: flex;
+    gap: 12px;
     justify-content: flex-end;
-    gap: 20px;
-    align-self: flex-end;
+    margin-top: 20px;
+    padding: 15px 20px;
 }
 
-:deep(.el-upload) {
-    width: 178px;
-    height: 178px;
+/* 添加响应式调整 */
+@media (max-width: 1040px) {
+    .form-actions {
+        right: 20px;
+        /* 在较窄屏幕上固定到右侧 */
+    }
+}
+
+@media (max-width: 768px) {
+    .article-create {
+        padding: 10px;
+        padding-bottom: 100px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
 </style>

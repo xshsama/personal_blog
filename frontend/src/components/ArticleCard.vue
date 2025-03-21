@@ -1,7 +1,7 @@
 <template>
   <el-card class="article-card" :body-style="{ padding: '0' }" @click="$emit('click')">
     <div class="article-cover">
-      <img :src="article.cover || defaultCover" :alt="article.title">
+      <img :src="article.coverImage || defaultCover" :alt="article.title">
       <div class="article-meta-overlay">
         <span class="meta-item">
           <el-icon>
@@ -13,13 +13,13 @@
           <el-icon>
             <View />
           </el-icon>
-          {{ formatNumber(article.views) }}
+          {{ formatNumber(article.viewCount) }}
         </span>
         <span class="meta-item">
           <el-icon>
             <ChatDotRound />
           </el-icon>
-          {{ formatNumber(article.commentsCount) }}
+          {{ formatNumber(article.commentCount) }}
         </span>
       </div>
     </div>
@@ -45,21 +45,9 @@
 </template>
 
 <script lang="ts">
+import { Article } from '@/types/article'
 import { Calendar, ChatDotRound, Folder, View } from '@element-plus/icons-vue'
 import { computed, defineComponent, PropType } from 'vue'
-
-interface Article {
-  id: number | string
-  title: string
-  summary: string
-  cover?: string
-  createdAt: string
-  category: string
-  tags: string[]
-  views: number
-  commentsCount: number
-  content: string
-}
 
 interface CategoryColors {
   [key: string]: string

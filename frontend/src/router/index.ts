@@ -23,6 +23,12 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true },
     },
     {
+        path: '/article/edit/:id',
+        name: 'ArticleEdit',
+        component: () => import('../views/Article/create.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
         path: '/article/:id',
         name: 'ArticleDetail',
         component: () => import('../views/Article/detail.vue'),
