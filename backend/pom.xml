@@ -126,6 +126,19 @@
             <version>${mapstruct.version}</version>
         </dependency>
 
+        <!-- 添加 jackson-datatype-hibernate6 依赖来处理 Hibernate 懒加载序列化问题 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hibernate6</artifactId>
+            <version>2.16.1</version>
+        </dependency>
+
+        <!-- 添加 Jackson JSR310 依赖以支持 Java 8 日期时间类型的序列化 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
         <!-- 测试依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

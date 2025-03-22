@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.xsh.personal_blog.dto.LoginRequest;
 import com.xsh.personal_blog.dto.LoginResponse;
 import com.xsh.personal_blog.dto.RegisterRequest;
 import com.xsh.personal_blog.entity.User;
+import com.xsh.personal_blog.security.UserDetailsImpl;
 import com.xsh.personal_blog.service.AuthService;
 import com.xsh.personal_blog.service.UserService;
 import com.xsh.personal_blog.util.JwtUtil;
@@ -38,8 +38,9 @@ public class AuthServiceImpl implements AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getLoginId(), loginRequest.getPassword()));
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        logger.debug("Generating tokens for authenticated user: {}", userDetails.getUsername());
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        logger.debug("Generating tokens for authenticated user: {} with ID: {}",
+                userDetails.getUsername(), userDetails.getUserId());
 
         String accessToken = jwtUtil.generateAccessToken(userDetails);
         String refreshToken = jwtUtil.generateRefreshToken(userDetails);
@@ -61,8 +62,9 @@ public class AuthServiceImpl implements AuthService {
         logger.info("New user created successfully: {}", user.getUsername());
 
         // Generate tokens
-        UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
-        logger.debug("Generating tokens for new user: {}", user.getUsername());
+        UserDetailsImpl userDetails = (UserDetailsImpl) userService.loadUserByUsername(user.getUsername());
+        logger.debug("Generating tokens for new user: {} with ID: {}",
+                user.getUsername(), userDetails.getUserId());
 
         String accessToken = jwtUtil.generateAccessToken(userDetails);
         String refreshToken = jwtUtil.generateRefreshToken(userDetails);
@@ -86,10 +88,10 @@ public class AuthServiceImpl implements AuthService {
         String username = jwtUtil.getUsernameFromToken(refreshToken);
         logger.debug("Refresh token valid for user: {}", username);
 
-        User user = userService.findByUsername(username);
-        UserDetails userDetails = userService.loadUserByUsername(username);
+        UserDetailsImpl userDetails = (UserDetailsImpl) userService.loadUserByUsername(username);
+        logger.debug("Generating new tokens for user: {} with ID: {}",
+                userDetails.getUsername(), userDetails.getUserId());
 
-        logger.debug("Generating new tokens for user: {}", username);
         String newAccessToken = jwtUtil.generateAccessToken(userDetails);
         String newRefreshToken = jwtUtil.generateRefreshToken(userDetails);
 
