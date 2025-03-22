@@ -1,3 +1,6 @@
+import router from '@/router';
+import eventBus from '@/utils/eventBus';
+import { ElMessage } from 'element-plus';
 import { ActionContext } from 'vuex';
 import authService from '../../services/auth.service';
 
@@ -109,14 +112,30 @@ const actions = {
             await authService.logout()
         } finally {
             commit('clearUserState')
+            router.push('/login')
         }
     },
+
+    // 新增：处理认证失败
+    handleAuthError({ commit }: ActionContext<AuthState, any>): void {
+        commit('clearUserState')
+        ElMessage.error('登录已过期，请重新登录')
+        if (router.currentRoute.value.name !== 'Login') {
+            router.push('/login')
+        }
+    }
 }
 
 const getters = {
     isAuthenticated: (state: AuthState): boolean => !!state.token,
     currentUser: (state: AuthState): User | null => state.user,
 }
+
+// 监听认证错误事件
+eventBus.on('auth:error', () => {
+    const store = require('@/store').default;
+    store.commit('auth/clearUserState');
+});
 
 export default {
     namespaced: true,

@@ -1,284 +1,159 @@
 <template>
-  <div class="home-view">
-    <!-- 顶部横幅区域 -->
-    <div class="home-banner">
-      <div class="banner-content">
-        <h1 class="banner-title">欢迎来到我的博客</h1>
-        <p class="banner-subtitle">分享技术、生活和更多精彩内容</p>
-        <el-button type="primary" size="large" @click="scrollToContent" class="banner-cta">
-          开始阅读
-          <el-icon class="el-icon--right"><ArrowDown /></el-icon>
-        </el-button>
-      </div>
-    </div>
-
-    <!-- 主要内容区域 -->
-    <div class="home-content" ref="contentRef">
-      <el-row :gutter="24">
-        <!-- 左侧文章列表 -->
-        <el-col :xs="24" :sm="24" :md="16" :lg="18" :xl="18">
-          <!-- 带有切换效果的文章区块 -->
-          <div class="article-section">
-            <div class="section-header">
-              <h2>精选文章</h2>
-              <div class="section-tabs">
-                <el-radio-group v-model="activeTab" size="small">
-                  <el-radio-button label="latest">最新文章</el-radio-button>
-                  <el-radio-button label="hot">热门文章</el-radio-button>
-                </el-radio-group>
-              </div>
-            </div>
-            <div class="article-list">
-              <article-card 
-                v-for="article in displayArticles" 
-                :key="article.id" 
-                :article="article"
-                class="article-item" 
-              />
-            </div>
-
-            <div class="load-more">
-              <el-button type="primary" text class="load-more-btn">
-                查看更多文章
-                <el-icon class="el-icon--right"><ArrowRight /></el-icon>
+  <div class="home">
+    <el-row :gutter="20">
+      <el-col :span="24">
+        <div class="search-section">
+          <el-input v-model="searchQuery" placeholder="搜索文章..." @keyup.enter="handleSearch">
+            <template #append>
+              <el-button @click="handleSearch">
+                <el-icon>
+                  <Search />
+                </el-icon>
               </el-button>
-            </div>
+            </template>
+          </el-input>
+        </div>
+
+        <!-- 最新文章部分 -->
+        <div class="article-section">
+          <div class="section-header">
+            <h2>最新文章</h2>
+            <el-button text @click="router.push('/articles')" class="more-link">
+              更多文章
+              <el-icon>
+                <ArrowRight />
+              </el-icon>
+            </el-button>
           </div>
-        </el-col>
-
-        <!-- 右侧侧边栏 -->
-        <el-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
-          <div class="sidebar">
-            <!-- 博主信息卡片 -->
-            <el-card class="blogger-card">
-              <div class="blogger-info">
-                <el-avatar :size="100" :src="getImageUrl(100, 100, 5)" class="blogger-avatar" />
-                <h3 class="blogger-name">博主昵称</h3>
-                <p class="blogger-desc">用热爱创造价值 | 前端开发工程师</p>
-                <div class="blogger-stats">
-                  <div class="stat-item">
-                    <div class="stat-num">{{ articleCount }}</div>
-                    <div class="stat-label">文章</div>
-                  </div>
-                  <div class="stat-item">
-                    <div class="stat-num">{{ categoryCount }}</div>
-                    <div class="stat-label">分类</div>
-                  </div>
-                  <div class="stat-item">
-                    <div class="stat-num">{{ tagCount }}</div>
-                    <div class="stat-label">标签</div>
-                  </div>
-                </div>
-              </div>
-            </el-card>
-
-            <!-- 搜索框 -->
-            <div class="search-box">
-              <el-input 
-                v-model="searchKeyword" 
-                placeholder="搜索文章..." 
-                clearable
-                prefix-icon="Search"
-                @keyup.enter="handleSearch" 
-              >
-                <template #append>
-                  <el-button @click="handleSearch">搜索</el-button>
-                </template>
-              </el-input>
-            </div>
-
-            <!-- 分类卡片 -->
-            <el-card class="category-card">
-              <template #header>
-                <div class="card-header">
-                  <el-icon><Folder /></el-icon>
-                  <span>分类</span>
-                </div>
-              </template>
-              <div class="categories">
-                <router-link 
-                  v-for="(category, index) in categories" 
-                  :key="index"
-                  :to="`/category/${category}`" 
-                  class="category-item"
-                >
-                  <el-tag :style="getCategoryStyle(index)" effect="light">
-                    {{ category }}
-                  </el-tag>
-                </router-link>
-              </div>
-            </el-card>
-
-            <!-- 标签云卡片 -->
-            <el-card class="tag-card">
-              <template #header>
-                <div class="card-header">
-                  <el-icon><PriceTag /></el-icon>
-                  <span>标签云</span>
-                </div>
-              </template>
-              <div class="tags">
-                <router-link 
-                  v-for="(tag, index) in tags" 
-                  :key="index"
-                  :to="`/tag/${tag}`" 
-                  class="tag-item"
-                >
-                  <el-tag 
-                    size="small" 
-                    :type="getRandomTagType()" 
-                    effect="plain"
-                  >
-                    {{ tag }}
-                  </el-tag>
-                </router-link>
-              </div>
-            </el-card>
-
+          <div v-if="loading" class="loading-wrapper">
+            <el-skeleton :rows="3" animated />
           </div>
-        </el-col>
-      </el-row>
-    </div>
+          <div v-else class="article-list">
+            <article-card v-for="article in latestArticles" :key="article.id" :article="article"
+              @click="goToArticle(article.id)" />
+          </div>
+        </div>
+
+        <!-- 热门文章部分 -->
+        <div class="article-section">
+          <div class="section-header">
+            <h2>热门文章</h2>
+            <el-button text @click="router.push('/articles')" class="more-link">
+              更多文章
+              <el-icon>
+                <ArrowRight />
+              </el-icon>
+            </el-button>
+          </div>
+          <div v-if="loading" class="loading-wrapper">
+            <el-skeleton :rows="3" animated />
+          </div>
+          <div v-else class="article-list">
+            <article-card v-for="article in hotArticles" :key="article.id" :article="article"
+              @click="goToArticle(article.id)" />
+          </div>
+        </div>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { ArrowDown, ArrowRight, Folder, PriceTag, Search } from '@element-plus/icons-vue';
-import { computed, defineComponent, ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import ArticleCard from '../../components/ArticleCard.vue';
-import { getImageUrl } from '../../utils/image';
+import articleService from '../../services/article.service';
+import { Article } from '../../types/article';
 
 export default defineComponent({
   name: 'HomeView',
   components: {
     ArticleCard,
     ArrowDown,
-    ArrowRight, 
+    ArrowRight,
     Folder,
     PriceTag,
     Search
   },
   setup() {
     const router = useRouter();
-    const contentRef = ref(null);
-    const activeTab = ref('latest');
-    const searchKeyword = ref('');
-    
-    // 模拟数据
-    const latestArticles = [
-      {
-        id: 1,
-        title: '如何使用Vue3构建现代化Web应用',
-        summary: '本文将详细介绍Vue3的新特性及其在构建现代Web应用中的应用，包括Composition API、响应式系统等核心概念的最佳实践。',
-        date: '2025-03-10',
-        viewCount: 100,
-        commentCount: 20,
-        tags: ['Vue', '前端'],
-        category: '技术',
-        cover: getImageUrl(800, 400, 1),
-      },
-      {
-        id: 2,
-        title: 'TypeScript高级技巧与实战应用',
-        summary: '深入探讨TypeScript的高级特性，包括类型推断、泛型、装饰器等，并通过实际项目案例展示如何提升代码质量和开发效率。',
-        date: '2025-03-09',
-        viewCount: 120,
-        commentCount: 15,
-        tags: ['TypeScript', '编程'],
-        category: '技术',
-        cover: getImageUrl(800, 400, 2),
-      },
-    ];
+    const loading = ref(true);
+    const searchQuery = ref('');
+    const latestArticles = ref<Article[]>([]);
+    const hotArticles = ref<Article[]>([]);
 
-    const hotArticles = [
-      {
-        id: 3,
-        title: '前端框架对比：React vs Vue vs Angular',
-        summary: '详细分析当前三大主流前端框架的优缺点、适用场景及性能对比，帮助开发者选择最适合自己项目的技术栈。',
-        date: '2025-03-01',
-        viewCount: 500,
-        commentCount: 100,
-        tags: ['框架', '前端'],
-        category: '技术',
-        cover: getImageUrl(800, 400, 3),
-      },
-      {
-        id: 4,
-        title: '2025年前端开发趋势预测',
-        summary: '基于当前技术发展态势，分析2025年前端开发领域可能出现的新技术、新框架及新范式，为开发者提供前瞻性的技术视角。',
-        date: '2025-02-20',
-        viewCount: 450,
-        commentCount: 85,
-        tags: ['趋势', '前端'],
-        category: '技术',
-        cover: getImageUrl(800, 400, 4),
-      },
-    ];
-
-    const categories = ['技术', '生活', '杂谈', '读书笔记', '项目分享'];
-    const tags = ['Vue', 'React', 'TypeScript', 'JavaScript', '前端架构', 'Node.js', '性能优化', '设计模式', '前端工程化', 'UI/UX'];
-
-    // 计算属性：根据当前选中的标签显示不同的文章列表
-    const displayArticles = computed(() => {
-      return activeTab.value === 'latest' ? latestArticles : hotArticles;
-    });
-
-    // 博主数据统计
-    const articleCount = ref(42);  // 模拟文章总数
-    const categoryCount = computed(() => categories.length);
-    const tagCount = computed(() => tags.length);
-
-    // 方法：滚动到内容区域
-    const scrollToContent = () => {
-      if (contentRef.value) {
-        contentRef.value.scrollIntoView({ behavior: 'smooth' });
+    // 加载最新文章
+    const loadLatestArticles = async () => {
+      try {
+        const response = await articleService.getArticles({
+          page: 0,
+          size: 6,
+          sortBy: 'createdAt',
+          sortDir: 'desc'
+        });
+        latestArticles.value = response.content;
+      } catch (error) {
+        console.error('获取最新文章失败:', error);
+        ElMessage.error('获取最新文章失败');
       }
     };
 
-    // 方法：处理搜索
+    // 加载热门文章
+    const loadHotArticles = async () => {
+      try {
+        const response = await articleService.getArticles({
+          page: 0,
+          size: 6,
+          sortBy: 'viewCount',
+          sortDir: 'desc'
+        });
+        hotArticles.value = response.content;
+      } catch (error) {
+        console.error('获取热门文章失败:', error);
+        ElMessage.error('获取热门文章失败');
+      }
+    };
+
+    // 搜索处理
     const handleSearch = () => {
-      if (searchKeyword.value.trim()) {
+      if (searchQuery.value.trim()) {
         router.push({
-          name: 'Search',
-          query: { keyword: searchKeyword.value }
+          path: '/search',
+          query: { q: searchQuery.value }
         });
       }
     };
 
-    // 方法：获取分类样式
-    const getCategoryStyle = (index) => {
-      const colors = ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#909399'];
-      return {
-        color: colors[index % colors.length]
-      };
+    // 跳转到文章详情
+    const goToArticle = (id: number) => {
+      router.push(`/article/${id}`);
     };
 
-    // 方法：获取随机标签类型
-    const getRandomTagType = () => {
-      const types = ['', 'success', 'warning', 'danger', 'info'];
-      return types[Math.floor(Math.random() * types.length)];
-    };
+    // 初始化加载
+    onMounted(async () => {
+      loading.value = true;
+      try {
+        await Promise.all([
+          loadLatestArticles(),
+          loadHotArticles()
+        ]);
+      } finally {
+        loading.value = false;
+      }
+    });
 
     return {
-      contentRef,
-      activeTab,
-      searchKeyword,
+      searchQuery,
       latestArticles,
       hotArticles,
-      categories,
-      tags,
-      displayArticles,
-      articleCount,
-      categoryCount,
-      tagCount,
-      scrollToContent,
+      loading,
       handleSearch,
-      getCategoryStyle,
-      getRandomTagType,
-      getImageUrl
+      goToArticle,
+      router
     };
-  },
+  }
 });
 </script>
 
@@ -542,7 +417,7 @@ export default defineComponent({
   .banner-title {
     font-size: 2.3rem;
   }
-  
+
   .article-list {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
@@ -552,11 +427,11 @@ export default defineComponent({
   .banner-title {
     font-size: 2rem;
   }
-  
+
   .home-banner {
     height: 300px;
   }
-  
+
   .sidebar {
     position: static;
     margin-top: 30px;
@@ -567,21 +442,21 @@ export default defineComponent({
   .banner-title {
     font-size: 1.8rem;
   }
-  
+
   .banner-subtitle {
     font-size: 1.1rem;
   }
-  
+
   .home-banner {
     height: 250px;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .article-list {
     grid-template-columns: 1fr;
   }
@@ -593,6 +468,7 @@ export default defineComponent({
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -604,6 +480,7 @@ export default defineComponent({
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -615,10 +492,12 @@ export default defineComponent({
     opacity: 0;
     transform: scale(0.8);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.05);
   }
+
   100% {
     transform: scale(1);
   }

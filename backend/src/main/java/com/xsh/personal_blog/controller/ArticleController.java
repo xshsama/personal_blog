@@ -1,5 +1,7 @@
 package com.xsh.personal_blog.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +31,8 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "${app.cors.allowed-origins}", allowCredentials = "true")
 public class ArticleController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
+
     @Autowired
     private ArticleService articleService;
 
@@ -37,6 +41,11 @@ public class ArticleController {
     public ResponseEntity<Article> createArticle(
             @Valid @RequestBody ArticleDTO articleDTO,
             @AuthenticationPrincipal Integer userId) {
+        if (userId == null) {
+            logger.error("Attempted to create article with null user ID");
+            throw new IllegalStateException("User ID is required to create an article");
+        }
+        logger.debug("Creating article for user ID: {}", userId);
         return articleService.uploadArticle(articleDTO, userId);
     }
 
@@ -51,6 +60,11 @@ public class ArticleController {
             @PathVariable Integer id,
             @Valid @RequestBody ArticleDTO articleDTO,
             @AuthenticationPrincipal Integer userId) {
+        if (userId == null) {
+            logger.error("Attempted to update article {} with null user ID", id);
+            throw new IllegalStateException("User ID is required to update an article");
+        }
+        logger.debug("Updating article {} for user ID: {}", id, userId);
         return articleService.updateArticle(id, articleDTO, userId);
     }
 
@@ -59,6 +73,11 @@ public class ArticleController {
     public ResponseEntity<?> deleteArticle(
             @PathVariable Integer id,
             @AuthenticationPrincipal Integer userId) {
+        if (userId == null) {
+            logger.error("Attempted to delete article {} with null user ID", id);
+            throw new IllegalStateException("User ID is required to delete an article");
+        }
+        logger.debug("Deleting article {} for user ID: {}", id, userId);
         return articleService.deleteArticle(id, userId);
     }
 

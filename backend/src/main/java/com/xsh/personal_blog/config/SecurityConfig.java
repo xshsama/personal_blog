@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -61,22 +62,23 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/api/auth/login", "/api/auth/register",
-                                                                "/api/auth/refresh",
-                                                                "/api/auth/logout",
-                                                                "/h2-console/**",
-                                                                "/api/git/commits",
-                                                                "/api/images/upload",
+                                                .requestMatchers(HttpMethod.GET,
                                                                 "/api/articles",
                                                                 "/api/articles/search",
-                                                                "/api/articles/{id}")
+                                                                "/api/articles/{id}",
+                                                                "/api/git/commits")
                                                 .permitAll()
+                                                .requestMatchers(
+                                                                "/api/auth/login",
+                                                                "/api/auth/register",
+                                                                "/api/auth/refresh",
+                                                                "/api/auth/logout")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                                .headers(headers -> headers
-                                                .frameOptions(frame -> frame.disable()));
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
         }
@@ -85,7 +87,7 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
                 configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-                configuration.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
+                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
                 configuration.setAllowCredentials(true);
                 configuration.setMaxAge(maxAge);

@@ -1,7 +1,5 @@
 package com.xsh.personal_blog.service.impl;
 
-import java.util.ArrayList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.xsh.personal_blog.dto.RegisterRequest;
 import com.xsh.personal_blog.entity.User;
 import com.xsh.personal_blog.repository.UserRepository;
+import com.xsh.personal_blog.security.UserDetailsImpl;
 import com.xsh.personal_blog.service.UserService;
 
 @Service
@@ -41,10 +40,7 @@ public class UserServiceImpl implements UserService {
         logger.debug("Loading UserDetails for username: {}", username);
         User user = findByUsername(username);
         logger.debug("UserDetails loaded successfully for username: {}", username);
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                new ArrayList<>());
+        return new UserDetailsImpl(user);
     }
 
     @Override

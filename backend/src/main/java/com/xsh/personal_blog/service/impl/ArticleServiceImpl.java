@@ -42,6 +42,11 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     @CacheEvict(value = "articles", allEntries = true)
     public ResponseEntity<Article> uploadArticle(@Valid ArticleDTO articleDTO, Integer userId) {
+        if (userId == null) {
+            logger.error("User ID cannot be null when creating an article");
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+
         logger.info("Creating new article for user ID: {}", userId);
         try {
             User author = userRepository.findById(userId)
@@ -55,14 +60,19 @@ public class ArticleServiceImpl implements ArticleService {
             article.setCoverImage(articleDTO.getCoverImage());
             article.setContent(articleDTO.getContent());
             article.setIsPublished(!articleDTO.getIsDraft());
+
+            // 确保设置作者和用户ID
             article.setUserId(userId);
             article.setAuthor(author);
+
+            // 初始化计数器
             article.setViewCount(0);
             article.setCommentCount(0);
             article.setLikeCount(0);
 
             Article savedArticle = articleRepository.save(article);
-            logger.info("Article created successfully with ID: {}", savedArticle.getId());
+            logger.info("Article created successfully with ID: {} for user ID: {}", savedArticle.getId(), userId);
+
             return ResponseEntity.ok(savedArticle);
         } catch (Exception e) {
             logger.error("Error creating article for user ID: {}", userId, e);
@@ -71,7 +81,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    @Cacheable(value = "articles", key = "#id")
+    @Cacheable(value = "articles", key = "#id", unless = "#result == null")
     public ResponseEntity<Article> getArticleById(Integer id) {
         logger.debug("Fetching article with ID: {}", id);
         return articleRepository.findById(id)
@@ -87,7 +97,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "articles", key = "#id")
+    @CacheEvict(value = "articles", allEntries = true)
     public ResponseEntity<?> deleteArticle(Integer id, Integer userId) {
         logger.info("Attempting to delete article ID: {} by user ID: {}", id, userId);
         return articleRepository.findById(id)
@@ -108,7 +118,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "articles", key = "#id")
+    @CacheEvict(value = "articles", allEntries = true)
     public ResponseEntity<Article> updateArticle(Integer id, @Valid ArticleDTO articleDTO, Integer userId) {
         logger.info("Attempting to update article ID: {} by user ID: {}", id, userId);
         return articleRepository.findById(id)
@@ -140,7 +150,10 @@ public class ArticleServiceImpl implements ArticleService {
     @Cacheable(value = "articles", key = "'all:' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public Page<Article> getAllArticles(Pageable pageable) {
         logger.debug("Fetching all articles with pagination: {}", pageable);
-        return articleRepository.findAll(pageable);
+        Specification<Article> spec = (root, query, cb) -> {
+            return cb.isTrue(root.get("isPublished"));
+        };
+        return articleRepository.findAll(spec, pageable);
     }
 
     @Override

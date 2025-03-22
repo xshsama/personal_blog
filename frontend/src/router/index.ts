@@ -1,8 +1,10 @@
-import { createRouter, createWebHistory, NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
+import eventBus from '@/utils/eventBus'
+import type { NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 interface RouteMeta {
-    requiresAuth?: boolean;
-    guest?: boolean;
+    requiresAuth?: boolean
+    guest?: boolean
 }
 
 const routes: Array<RouteRecordRaw> = [
@@ -105,6 +107,13 @@ router.beforeEach((
         next('/user')
     } else {
         next()
+    }
+})
+
+// 监听认证错误事件，重定向到登录页面
+eventBus.on('auth:error', () => {
+    if (router.currentRoute.value.name !== 'Login') {
+        router.push('/login')
     }
 })
 
