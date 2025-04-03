@@ -1,60 +1,101 @@
 <template>
   <div class="home">
-    <el-row :gutter="20">
-      <el-col :span="24">
-        <div class="search-section">
-          <el-input v-model="searchQuery" placeholder="搜索文章..." @keyup.enter="handleSearch">
-            <template #append>
-              <el-button @click="handleSearch">
+    <!-- Banner Section -->
+    <div class="home-banner">
+      <div class="banner-content">
+        <h1 class="banner-title">探索知识的海洋</h1>
+        <p class="banner-subtitle">分享技术，记录生活，启发思考</p>
+      </div>
+    </div>
+
+    <div class="home-content">
+      <el-row :gutter="20">
+        <!-- 主要内容区域 -->
+        <el-col :md="18" :xs="24">
+          <!-- 搜索部分 -->
+          <div class="search-section">
+            <el-input v-model="searchQuery" placeholder="搜索文章..." @keyup.enter="handleSearch">
+              <template #append>
+                <el-button @click="handleSearch">
+                  <el-icon>
+                    <Search />
+                  </el-icon>
+                </el-button>
+              </template>
+            </el-input>
+          </div>
+
+          <!-- 最新文章部分 -->
+          <div class="article-section">
+            <div class="section-header">
+              <h2>最新文章</h2>
+              <el-button text @click="router.push('/articles')" class="more-link">
+                更多文章
                 <el-icon>
-                  <Search />
+                  <ArrowRight />
                 </el-icon>
               </el-button>
-            </template>
-          </el-input>
-        </div>
+            </div>
+            <div v-if="loading" class="loading-wrapper">
+              <el-skeleton :rows="3" animated />
+            </div>
+            <div v-else class="article-list">
+              <article-card v-for="article in latestArticles" :key="article.id" :article="article"
+                @click="goToArticle(article.id)" />
+            </div>
+          </div>
 
-        <!-- 最新文章部分 -->
-        <div class="article-section">
-          <div class="section-header">
-            <h2>最新文章</h2>
-            <el-button text @click="router.push('/articles')" class="more-link">
-              更多文章
-              <el-icon>
-                <ArrowRight />
-              </el-icon>
-            </el-button>
+          <!-- 热门文章部分 -->
+          <div class="article-section">
+            <div class="section-header">
+              <h2>热门文章</h2>
+              <el-button text @click="router.push('/articles')" class="more-link">
+                更多文章
+                <el-icon>
+                  <ArrowRight />
+                </el-icon>
+              </el-button>
+            </div>
+            <div v-if="loading" class="loading-wrapper">
+              <el-skeleton :rows="3" animated />
+            </div>
+            <div v-else class="article-list">
+              <article-card v-for="article in hotArticles" :key="article.id" :article="article"
+                @click="goToArticle(article.id)" />
+            </div>
           </div>
-          <div v-if="loading" class="loading-wrapper">
-            <el-skeleton :rows="3" animated />
-          </div>
-          <div v-else class="article-list">
-            <article-card v-for="article in latestArticles" :key="article.id" :article="article"
-              @click="goToArticle(article.id)" />
-          </div>
-        </div>
+        </el-col>
 
-        <!-- 热门文章部分 -->
-        <div class="article-section">
-          <div class="section-header">
-            <h2>热门文章</h2>
-            <el-button text @click="router.push('/articles')" class="more-link">
-              更多文章
-              <el-icon>
-                <ArrowRight />
-              </el-icon>
-            </el-button>
+        <!-- 侧边栏 -->
+        <el-col :md="6" :xs="24">
+          <div class="sidebar">
+            <!-- 博主信息卡片 -->
+            <el-card class="blogger-card">
+              <div class="blogger-info">
+                <el-avatar :size="100" class="blogger-avatar"
+                  src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
+                <h3 class="blogger-name">技术博主</h3>
+                <p class="blogger-desc">热爱技术，分享生活</p>
+                <div class="blogger-stats">
+                  <div class="stat-item">
+                    <div class="stat-num">{{ latestArticles.length }}</div>
+                    <div class="stat-label">文章</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-num">0</div>
+                    <div class="stat-label">分类</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-num">0</div>
+                    <div class="stat-label">标签</div>
+                  </div>
+                </div>
+              </div>
+            </el-card>
           </div>
-          <div v-if="loading" class="loading-wrapper">
-            <el-skeleton :rows="3" animated />
-          </div>
-          <div v-else class="article-list">
-            <article-card v-for="article in hotArticles" :key="article.id" :article="article"
-              @click="goToArticle(article.id)" />
-          </div>
-        </div>
-      </el-col>
-    </el-row>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
@@ -159,7 +200,7 @@ export default defineComponent({
 
 <style scoped>
 /* 全局样式 */
-.home-view {
+.home {
   width: 100%;
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -216,12 +257,6 @@ export default defineComponent({
   animation: fadeInUp 0.8s ease 0.3s both;
 }
 
-.banner-cta {
-  animation: bounceIn 1s ease 0.6s both;
-  padding: 12px 24px;
-  font-size: 1rem;
-}
-
 /* 主要内容区域 */
 .home-content {
   padding: 0 20px 40px;
@@ -229,12 +264,17 @@ export default defineComponent({
   margin: 0 auto;
 }
 
+/* 搜索区域 */
+.search-section {
+  margin-bottom: 30px;
+}
+
 /* 文章区块样式 */
 .article-section {
   margin-bottom: 40px;
-  background: #fff;
+  background: var(--el-bg-color);
   border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--el-box-shadow-light);
   padding: 20px;
 }
 
@@ -243,14 +283,14 @@ export default defineComponent({
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--el-border-color-light);
   padding-bottom: 15px;
 }
 
 .section-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  color: var(--el-text-color-primary);
   position: relative;
   padding-left: 15px;
 }
@@ -263,7 +303,7 @@ export default defineComponent({
   transform: translateY(-50%);
   width: 4px;
   height: 20px;
-  background: #409EFF;
+  background: var(--el-color-primary);
   border-radius: 2px;
 }
 
@@ -274,29 +314,9 @@ export default defineComponent({
   margin-bottom: 20px;
 }
 
-.article-item {
-  transition: all 0.3s ease;
-}
-
-/* 文章列表动画 */
-.article-list-enter-active,
-.article-list-leave-active {
-  transition: all 0.5s ease;
-}
-
-.article-list-enter-from,
-.article-list-leave-to {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.load-more {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.load-more-btn {
-  font-size: 1rem;
+/* 加载状态 */
+.loading-wrapper {
+  padding: 20px;
 }
 
 /* 侧边栏样式 */
@@ -308,21 +328,12 @@ export default defineComponent({
   gap: 20px;
 }
 
-.blogger-card,
-.category-card,
-.tag-card {
+.blogger-card {
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s ease;
   border: none;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-}
-
-.blogger-card:hover,
-.category-card:hover,
-.tag-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--el-box-shadow-light);
 }
 
 .blogger-info {
@@ -333,24 +344,20 @@ export default defineComponent({
 }
 
 .blogger-avatar {
-  border: 3px solid #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border: 3px solid var(--el-color-white);
+  box-shadow: var(--el-box-shadow-light);
   margin-bottom: 15px;
   transition: all 0.3s ease;
-}
-
-.blogger-avatar:hover {
-  transform: rotate(5deg) scale(1.05);
 }
 
 .blogger-name {
   margin: 10px 0 5px;
   font-size: 1.3rem;
-  color: #333;
+  color: var(--el-text-color-primary);
 }
 
 .blogger-desc {
-  color: #666;
+  color: var(--el-text-color-regular);
   margin: 0 0 15px;
   font-size: 0.95rem;
 }
@@ -359,7 +366,7 @@ export default defineComponent({
   display: flex;
   justify-content: space-around;
   width: 100%;
-  border-top: 1px dashed #eee;
+  border-top: 1px dashed var(--el-border-color-lighter);
   padding-top: 15px;
   margin-top: 10px;
 }
@@ -371,45 +378,12 @@ export default defineComponent({
 .stat-num {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #409EFF;
+  color: var(--el-color-primary);
 }
 
 .stat-label {
   font-size: 0.8rem;
-  color: #999;
-}
-
-.search-box {
-  margin-bottom: 5px;
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.card-header .el-icon {
-  margin-right: 8px;
-}
-
-.categories,
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.category-item,
-.tag-item {
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.category-item:hover,
-.tag-item:hover {
-  transform: translateY(-2px);
+  color: var(--el-text-color-secondary);
 }
 
 /* 响应式调整 */
@@ -484,22 +458,6 @@ export default defineComponent({
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-
-  100% {
-    transform: scale(1);
   }
 }
 </style>
